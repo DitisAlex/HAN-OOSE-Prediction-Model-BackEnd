@@ -1,4 +1,5 @@
 Flask
-pytest
-coverage
 pandas
+datetime
+numpy
+pyowm
