@@ -9,10 +9,6 @@ class EnergyController:
         data = self.energyDAO.fetchData('consumption')
         self.energyDAO.insertData('consumption', data)
 
-        return ''
-
     def fetchProductionData(self):
         data = self.energyDAO.fetchData('production')
         self.energyDAO.insertData('production', data)
-
-        return ''
