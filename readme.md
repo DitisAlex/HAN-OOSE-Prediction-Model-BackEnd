@@ -116,7 +116,8 @@ This project uses a feature based folder structure. This means that all componen
 
 ### **Weather**
 
-> **TODO**
+- `/weather` [GET]: gets the latest 24 hours of weather data 
+- `/weather` [POST]: inserts new weather data into the database 
 
 ### **Authentication**
 
