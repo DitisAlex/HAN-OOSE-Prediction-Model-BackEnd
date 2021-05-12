@@ -8,8 +8,8 @@ There are two options to run this backend: on your local machine using Python vi
 
 ### Local
 
-1. Make a Python virtual environment
-   \*Linux/Mac\*\*
+1. Make a Python virtual environment  
+   **Linux/Mac**
    ```bash
    $ python3 -m venv venv
    ```
