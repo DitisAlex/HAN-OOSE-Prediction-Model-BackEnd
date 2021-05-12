@@ -35,6 +35,10 @@ There are two options to run this backend: on your local machine using Python vi
    $ python run.py
    ```
    You can access the backend via http://localhost:5000 or http://0.0.0.0:5000.
+5. Initialize database:
+    ```
+    $ flask init-db
+    ```
 
 ### Docker
 
@@ -124,7 +128,6 @@ This project uses a feature based folder structure. This means that all componen
 
 - `/auth/login`:
 - `/auth/logout`:
-
 
 ## CLI commands
 
