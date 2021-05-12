@@ -8,21 +8,14 @@ from flask import jsonify
 @bp.route('/fetch', methods=['GET'])
 def insertWeatherData():
     c = WeatherController()
+    c.insertWeather()
 
-    try:
-        c.insertWeather()
-
-        return "Weather data inserted"
-    except KeyError:  # KeyError = missing key in json
-        abort(401, "Invalid data")
+    return "Weather data inserted"
 
 @bp.route('', methods=['GET'])
 def getWeather():
     c = WeatherController()
+    result = c.getWeather()
 
-    try:
-        result = c.getWeather()
-
-        return result
-    except KeyError:  # KeyError = missing key in json
-        abort(401, "Invalid data")
+    return result
+    
