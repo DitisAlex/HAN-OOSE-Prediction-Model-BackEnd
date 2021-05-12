@@ -18,6 +18,6 @@ class WeatherController:
         self.weatherDAO.insertWeatherData(forecast_hourly)
 
     def getWeather(self):
-        data = self.weatherDAO.getWeatherData()
+        weatherData = self.weatherDAO.getWeatherData()
 
-        return data
+        return weatherData.data

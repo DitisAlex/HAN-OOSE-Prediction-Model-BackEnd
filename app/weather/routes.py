@@ -1,4 +1,4 @@
-from flask import request, abort
+from flask import jsonify
 from app.weather import bp
 from app.weather.controller import WeatherController
 
@@ -17,5 +17,4 @@ def getWeather():
     c = WeatherController()
     result = c.getWeather()
 
-    return result
-    
+    return jsonify(result)
