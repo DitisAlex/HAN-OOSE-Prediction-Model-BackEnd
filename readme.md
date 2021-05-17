@@ -195,7 +195,7 @@ tests/test_factory.py ..                              [100%]
 > Run the above command with the `-v` flag to get a list fo eacht test function.
 
 ### Measuring code coverage 
-To measure the code coverage of the test use the following command instead of `pytest`:
+To measure the code coverage of the test use the following command instead  just `pytest`:
 ```Bash
 coverage run -m pytest
 ```
