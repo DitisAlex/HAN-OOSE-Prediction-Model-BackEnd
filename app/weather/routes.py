@@ -8,13 +8,13 @@ from flask import jsonify
 @bp.route('/fetch', methods=['GET'])
 def insertWeatherData():
     c = WeatherController()
-    c.insertWeather()
+    c.insertWeatherData()
 
     return "Weather data inserted"
 
 @bp.route('', methods=['GET'])
 def getWeather():
     c = WeatherController()
-    result = c.getWeather()
+    result = c.getWeatherData()
 
     return jsonify(result)

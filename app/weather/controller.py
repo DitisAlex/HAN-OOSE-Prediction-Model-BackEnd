@@ -6,7 +6,7 @@ class WeatherController:
         self.weatherDAO = WeatherDAO()
         pass
 
-    def insertWeather(self):
+    def insertWeatherData(self):
 
         # Setup weather, taken from Pytorch model.
         owm = OWM('1a4df9d4817c3d16e92b272d59531753')
@@ -17,7 +17,7 @@ class WeatherController:
 
         self.weatherDAO.insertWeatherData(forecast_hourly)
 
-    def getWeather(self):
+    def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()
 
         return weatherData.data
