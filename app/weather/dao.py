@@ -7,23 +7,22 @@ class WeatherDAO:
   def __init__(self):
     pass
 
-  def insertWeatherData(self, forecast_hourly):
+  def insertWeatherData(self, datapoint):
 
     # Open database
     db = get_db()
     cur = db.cursor()
 
-    for i in range(len(forecast_hourly)):
-        dt = (datetime.fromtimestamp(forecast_hourly[i].ref_time)).strftime('%Y-%m-%d %H:%M:%S')
-        query = '''INSERT INTO weather VALUES (?,?,?,?,?)'''
-        values = (
-                    dt,
-                    forecast_hourly[i].temperature('celsius')['temp'],
-                    forecast_hourly[i].clouds,
-                    forecast_hourly[i].wind()['speed'],
-                    forecast_hourly[i].pressure['press'])
+    dt = (datetime.fromtimestamp(datapoint.ref_time)).strftime('%Y-%m-%d %H:%M:%S')
+    query = '''INSERT INTO weather VALUES (?,?,?,?,?)'''
+    values = (
+                dt,
+                datapoint.temperature('celsius')['temp'],
+                datapoint.clouds,
+                datapoint.wind()['speed'],
+                datapoint.pressure['press'])
 
-        cur.execute(query, values)
+    cur.execute(query, values)
 
   def getWeatherData(self):   
     
