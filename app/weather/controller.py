@@ -20,4 +20,4 @@ class WeatherController:
     def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()
 
-        return weatherData.data
+        return weatherData

@@ -1,5 +1,5 @@
 from app.core.db import get_db, get_rpi_db
-from app.weather.domain import WeatherData
+from app.weather.domain import WeatherPoint
 from datetime import datetime, timedelta, timezone
 from flask import jsonify
 
@@ -37,8 +37,7 @@ class WeatherDAO:
       data = []
       
       for row in rows:
-          data.append([x for x in row])
+        weatherPoint = [x for x in row]
+        data.append(WeatherPoint(weatherPoint[0], weatherPoint[1], weatherPoint[2], weatherPoint[3], weatherPoint[4]))
 
-      weatherData = WeatherData(data)
-
-      return weatherData
+      return data

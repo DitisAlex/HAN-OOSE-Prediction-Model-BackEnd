@@ -15,6 +15,19 @@ def insertWeatherData():
 @bp.route('', methods=['GET'])
 def getWeather():
     c = WeatherController()
-    result = c.getWeatherData()
+    results = c.getWeatherData()
 
-    return jsonify(result)
+    weatherData = []
+
+    for result in results:
+        weatherPoint = []
+
+        weatherPoint.append(result.getDate())
+        weatherPoint.append(result.getTemperature())
+        weatherPoint.append(result.getCloud())
+        weatherPoint.append(result.getWind())
+        weatherPoint.append(result.getPressure())
+
+        weatherData.append(weatherPoint)
+
+    return jsonify(weatherData)
