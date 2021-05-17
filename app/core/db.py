@@ -6,11 +6,6 @@ from flask.cli import with_appcontext
 from pandas import pandas as pd
 
 
-def init_app(app):
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)
-
-
 def get_db():
     if 'db' not in g:
         g.db = sqlite3.connect(
@@ -49,15 +44,21 @@ def close_rpi_db(e=None):
         db.commit()
         db.close()
 
+def init_db():
+    db = get_db()
+
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))
+
+def init_app(app):
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
+
 # Clear existing data and create new empty tables.
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    db = get_db()
-
-    with current_app.open_resource("schema.sql", "rb") as f:
-        db.executescript(f.read().decode("utf8"))
-
+    init_db()
     click.echo('Initialized the database.') 
 
 # Insert test data into db.
