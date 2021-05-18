@@ -1,4 +1,3 @@
-INSERT INTO user (username, password, isAdmin, sign_up_date) VALUES ('admin', 'admin', 1, datetime('now'));
 INSERT INTO user (username, password, isAdmin, sign_up_date) VALUES ('test', 'test', 0, datetime('now'));
 
 INSERT INTO weather (date, temperature, cloud, wind, pressure) VALUES ('2021-04-20 09:45:14', 10.38, 36, 4.73, 1023);
