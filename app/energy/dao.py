@@ -16,7 +16,7 @@ class EnergyDAO:
     cursor.execute(fetch_query)  # TODO: only fetch new data instead of everything
     rows = cursor.fetchall()
 
-    labelz =[]
+    labelz = []
     valuez = []
     data = []
     for row in rows:
