@@ -3,7 +3,6 @@ import tempfile
 import pytest
 
 from app import create_app
-from flask import current_app
 from app.core.db import get_db, init_db
 
 # Load up test data.
