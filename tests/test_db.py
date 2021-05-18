@@ -33,10 +33,10 @@ def test_get_close_rpi_db(app):
 
 def test_init_db_command(runner, monkeypatch):
     # Arrange
+    ## Mock function
     class Recorder(object):
         called = False
 
-    # Mock function
     def fake_init_db():
         Recorder.called = True
 
