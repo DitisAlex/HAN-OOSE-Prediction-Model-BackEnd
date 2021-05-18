@@ -130,6 +130,7 @@ This project uses a feature based folder structure. This means that all componen
 - `/auth/login`:
 - `/auth/logout`:
 
+
 ## CLI commands
 
 This application also contains several CLI commands for setup and testing purposes. These command can be executed after the Python virtual environment has been activated or inside the running Docker container.
@@ -175,6 +176,47 @@ $ flask show-table energy_production
 
 [6148 rows x 21 columns]
 ```
+
+## Unit testing
+this project uses two Python packages to perform unit tests: pytest and coverage. To run the test use the following command:
+```Bash
+$ pytest
+
+==================== test session starts ====================
+platform linux -- Python 3.8.5, pytest-6.2.4, py-1.10.0, pluggy-0.13.1
+rootdir: /../backend-hanwatts-prediction-model-web-interface, configfile: setup.cfg, testpaths: tests
+collected 4 items                                           
+
+tests/test_db.py ..                                   [ 50%]
+tests/test_factory.py ..                              [100%]
+
+===================== 4 passed in 1.40s =====================
+```
+> Run the above command with the `-v` flag to get a list fo eacht test function.
+
+### Measuring code coverage 
+To measure the code coverage of the test use the following command instead  just `pytest`:
+```Bash
+coverage run -m pytest
+```
+
+To view the coverage report in the terminal:
+```bash
+$ coverage report
+
+Name                        Stmts   Miss Branch BrPart  Cover
+-------------------------------------------------------------
+app/__init__.py                24      0      2      0   100%
+app/core/db.py                 58     16      8      1    71%
+-------------------------------------------------------------
+TOTAL                         247    108     22      1    54%
+```
+
+To generate a HTML report of this report run the following command:
+```Bash
+$ coverage html
+```
+The report can be found in `htmlcov/index.html`.
 
 <br><br>
 
