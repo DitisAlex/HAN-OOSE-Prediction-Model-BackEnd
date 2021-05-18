@@ -1,5 +1,6 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
+import pandas as pd
 
 class EnergyDAO:
   def __init__(self):
@@ -15,6 +16,8 @@ class EnergyDAO:
     cursor.execute(fetch_query)  # TODO: only fetch new data instead of everything
     rows = cursor.fetchall()
 
+    labelz =[]
+    valuez = []
     data = []
     for row in rows:
           consumptionDate = row[0];
@@ -26,18 +29,15 @@ class EnergyDAO:
           numOfHours += hour;
           # now = datetime.now()
           # nowFormat = now.strftime('%Y-%m-%d %H:%M')
-          # hoursAgo = now + timedelta(hours=-4)
-          # hoursAgoFormat = hoursAgo.strftime('%Y-%m-%d %H:%M')
 
           hardcodedDate = '2021-04-05 11:00'
           hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
           hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=int(numOfHours))
           hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
-          
+
           valueSum = 0
           if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
-                print(hardCodedDate_hoursFormat + consumptionDate_hoursFormat)
-                englishFormat = consumptionDate_hours.strftime('%Y-%m-%d %I:%M %p')
+                englishFormat = consumptionDate_hours.strftime('%I:%M %p')
 
                 data.append({
                   'labels': englishFormat,
@@ -45,7 +45,8 @@ class EnergyDAO:
                   'values': row[1]
                 })
                 valueSum += row[1]
-    
+   
+          
     print(int(numOfHours));
     print(valueSum)
     return data
@@ -53,6 +54,20 @@ class EnergyDAO:
 #     labels: ["10AM", "11AM", "12AM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"],
 #     values: [8, 10, 15, 13, 17, 18, 22, 19]
 # }
+
+#  df = pd.DataFrame({
+#       'date': labelz,
+#       'val': valuez
+#     })
+#     print (df)
+#     print('hai')
+#     df.resample('60min', base=0, label='right')['val'].first()
+#     print('hai')
+#     print (df)
+
+# labelz.append(consumptionDate_hoursFormat)
+#                 valuez.append(row[1])
+#                 print("form", consumptionDate_hoursFormat)
 
   def fetchData(self, type):
     table = 'Grid' if type == 'consumption' else 'PV'
