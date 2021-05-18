@@ -17,31 +17,37 @@ class EnergyDAO:
 
     data = []
     for row in rows:
-          oldTime = row[0];
-          consumptionDate = datetime.fromtimestamp(oldTime)
-          time = consumptionDate + timedelta(hours=2)
-          newTime = time.strftime('%Y-%m-%d %H:%M')
+          consumptionDate = row[0];
+          consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
+          consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
+          consumptionDate_hoursFormat = consumptionDate_hours.strftime('%Y-%m-%d %H:%M')
           
-          hourCount = "-";
-          hourCount += hour;
+          numOfHours = "-";
+          numOfHours += hour;
           # now = datetime.now()
           # nowFormat = now.strftime('%Y-%m-%d %H:%M')
           # hoursAgo = now + timedelta(hours=-4)
           # hoursAgoFormat = hoursAgo.strftime('%Y-%m-%d %H:%M')
 
-          date_str = '2021-04-05 11:00'
-          datez = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
-          datezHoursAgo = datez + timedelta(hours=int(hourCount))
-          datezHoursAgoFormat = datezHoursAgo.strftime('%Y-%m-%d %H:%M')
+          hardcodedDate = '2021-04-05 11:00'
+          hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
+          hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=int(numOfHours))
+          hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
           
-          if(newTime > datezHoursAgoFormat):
-                print(int(hourCount));
-                print(datezHoursAgoFormat + newTime)
+          valueSum = 0
+          if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
+                print(hardCodedDate_hoursFormat + consumptionDate_hoursFormat)
+                englishFormat = consumptionDate_hours.strftime('%Y-%m-%d %I:%M %p')
+
                 data.append({
-                  'labels': newTime,
+                  'labels': englishFormat,
+                  'dutch': consumptionDate_hoursFormat,
                   'values': row[1]
                 })
-             
+                valueSum += row[1]
+    
+    print(int(numOfHours));
+    print(valueSum)
     return data
 #     let test_data = {
 #     labels: ["10AM", "11AM", "12AM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"],
