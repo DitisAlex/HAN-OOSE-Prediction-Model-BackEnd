@@ -1,8 +1,52 @@
 from app.core.db import get_db, get_rpi_db
+from datetime import date, datetime, timedelta, timezone
 
 class EnergyDAO:
   def __init__(self):
     pass
+
+  
+  def fetchConsumptionData(self, hour):
+    table = 'energy_consumption'
+    fetch_query = 'SELECT time, P1 FROM %s'%table
+
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute(fetch_query)  # TODO: only fetch new data instead of everything
+    rows = cursor.fetchall()
+
+    data = []
+    for row in rows:
+          oldTime = row[0];
+          consumptionDate = datetime.fromtimestamp(oldTime)
+          time = consumptionDate + timedelta(hours=2)
+          newTime = time.strftime('%Y-%m-%d %H:%M')
+          
+          hourCount = "-";
+          hourCount += hour;
+          # now = datetime.now()
+          # nowFormat = now.strftime('%Y-%m-%d %H:%M')
+          # hoursAgo = now + timedelta(hours=-4)
+          # hoursAgoFormat = hoursAgo.strftime('%Y-%m-%d %H:%M')
+
+          date_str = '2021-04-05 11:00'
+          datez = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
+          datezHoursAgo = datez + timedelta(hours=int(hourCount))
+          datezHoursAgoFormat = datezHoursAgo.strftime('%Y-%m-%d %H:%M')
+          
+          if(newTime > datezHoursAgoFormat):
+                print(int(hourCount));
+                print(datezHoursAgoFormat + newTime)
+                data.append({
+                  'labels': newTime,
+                  'values': row[1]
+                })
+             
+    return data
+#     let test_data = {
+#     labels: ["10AM", "11AM", "12AM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"],
+#     values: [8, 10, 15, 13, 17, 18, 22, 19]
+# }
 
   def fetchData(self, type):
     table = 'Grid' if type == 'consumption' else 'PV'
@@ -14,7 +58,7 @@ class EnergyDAO:
     rows = cursor.fetchall()
 
     data = []
-    for row in rows:
+    for row in rows[:3]:
         data.append(list(row))
 
     return data
