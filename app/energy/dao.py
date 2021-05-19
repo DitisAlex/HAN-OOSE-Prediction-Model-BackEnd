@@ -16,58 +16,36 @@ class EnergyDAO:
     cursor.execute(fetch_query)  # TODO: only fetch new data instead of everything
     rows = cursor.fetchall()
 
-    labelz = []
-    valuez = []
     data = []
+    
+    numOfHours = "-";
+    numOfHours += hour;
+    hardcodedDate = '2021-04-05 11:00'
+    hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
+    hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=int(numOfHours))
+    hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
+    earliestHour = hardCodedDate_hours.strftime('%H')
+    lastHour = hardcodedDateFormat.strftime('%H')
+
     for row in rows:
           consumptionDate = row[0];
           consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
           consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
           consumptionDate_hoursFormat = consumptionDate_hours.strftime('%Y-%m-%d %H:%M')
           
-          numOfHours = "-";
-          numOfHours += hour;
-          # now = datetime.now()
-          # nowFormat = now.strftime('%Y-%m-%d %H:%M')
-
-          hardcodedDate = '2021-04-05 11:00'
-          hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
-          hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=int(numOfHours))
-          hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
-
-          valueSum = 0
           if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
                 englishFormat = consumptionDate_hours.strftime('%I:%M %p')
 
                 data.append({
                   'labels': englishFormat,
-                  'dutch': consumptionDate_hoursFormat,
                   'values': row[1]
                 })
-                valueSum += row[1]
-   
-          
-    print(int(numOfHours));
-    print(valueSum)
+
     return data
 #     let test_data = {
 #     labels: ["10AM", "11AM", "12AM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"],
 #     values: [8, 10, 15, 13, 17, 18, 22, 19]
 # }
-
-#  df = pd.DataFrame({
-#       'date': labelz,
-#       'val': valuez
-#     })
-#     print (df)
-#     print('hai')
-#     df.resample('60min', base=0, label='right')['val'].first()
-#     print('hai')
-#     print (df)
-
-# labelz.append(consumptionDate_hoursFormat)
-#                 valuez.append(row[1])
-#                 print("form", consumptionDate_hoursFormat)
 
   def fetchData(self, type):
     table = 'Grid' if type == 'consumption' else 'PV'
