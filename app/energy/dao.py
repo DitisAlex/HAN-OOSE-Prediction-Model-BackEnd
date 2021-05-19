@@ -7,7 +7,7 @@ class EnergyDAO:
     pass
 
   
-  def fetchConsumptionData(self, hour):
+  def fetchConsumptionData(self):
     table = 'energy_consumption'
     fetch_query = 'SELECT time, P1 FROM %s'%table
 
@@ -18,11 +18,9 @@ class EnergyDAO:
 
     data = []
     
-    numOfHours = "-";
-    numOfHours += hour;
     hardcodedDate = '2021-04-05 11:00'
     hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
-    hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=int(numOfHours))
+    hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=-4)
     hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
     earliestHour = hardCodedDate_hours.strftime('%H')
     lastHour = hardcodedDateFormat.strftime('%H')

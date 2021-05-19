@@ -4,9 +4,9 @@ from app.energy.controller import EnergyController
 
 energyController = EnergyController()
 
-@bp.route('/consumption/hours/<hours>', methods=['GET'])
-def getConsumption(hours):
-    dat = energyController.getConsumptionData(hours)
+@bp.route('/consumption/hours', methods=['GET'])
+def getConsumption():
+    dat = energyController.getConsumptionData()
     # return dat
     return jsonify(dat)
     # return 'Successfully fetched energy consumption data from the Raspberry Pi and insterted it into the database!'
