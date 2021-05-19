@@ -1,26 +1,25 @@
+from pyowm.weatherapi25 import weather
 from app.core.db import get_db, get_rpi_db
 from app.weather.domain import WeatherPoint
-from datetime import datetime, timedelta, timezone
 from flask import jsonify
 
 class WeatherDAO:
   def __init__(self):
     pass
 
-  def insertWeatherData(self, datapoint):
+  def insertWeatherData(self, weatherPoint):
 
     # Open database
     db = get_db()
     cur = db.cursor()
 
-    dt = (datetime.fromtimestamp(datapoint.ref_time)).strftime('%Y-%m-%d %H:%M:%S')
     query = '''INSERT INTO weather VALUES (?,?,?,?,?)'''
     values = (
-                dt,
-                datapoint.temperature('celsius')['temp'],
-                datapoint.clouds,
-                datapoint.wind()['speed'],
-                datapoint.pressure['press'])
+                weatherPoint.getDate(),
+                weatherPoint.getTemperature(),
+                weatherPoint.getCloud(),
+                weatherPoint.getWind(),
+                weatherPoint.getPressure())
 
     cur.execute(query, values)
 

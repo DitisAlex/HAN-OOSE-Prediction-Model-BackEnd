@@ -29,5 +29,8 @@ def getWeather():
         weatherPoint.append(result.getPressure())
 
         weatherData.append(weatherPoint)
+    
+    if (len(weatherData) == 0):
+        return "No historical weatherdata found in database", 204
 
     return jsonify(weatherData)
