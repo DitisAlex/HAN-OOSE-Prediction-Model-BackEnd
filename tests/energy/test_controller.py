@@ -28,6 +28,7 @@ def test_fetchConsumptionData(monkeypatch):
     assert Recorder.called1
     assert Recorder.called2
 
+
 def test_fetchProductionData(monkeypatch):
     # Arrange
     # Mock dao functions.
