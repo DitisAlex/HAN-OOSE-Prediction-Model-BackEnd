@@ -1,7 +1,6 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
 
-
 class EnergyDAO:
     def __init__(self):
         pass
@@ -15,29 +14,26 @@ class EnergyDAO:
         cursor.execute(fetch_query)
         rows = cursor.fetchall()
 
-        
-
-        currentDate = date.today()
-        formattedDate = datetime.strptime(currentDate, "%Y-%m-%d %H:%M")
-        currentDate_hours = formattedDate + timedelta(hours=-4)
+        currentDate = datetime.today()
+        currentDateFormat = currentDate.strftime('%Y-%m-%d %H:%M')
+        currentDate_hours = currentDate + timedelta(hours=-4)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
         for row in rows:
-            consumptionDate = row[0]
-            consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
-            consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
-            consumptionDate_hoursFormat = consumptionDate_hours.strftime(
-                '%Y-%m-%d %H:%M')
+            energyDate = row[0]
+            energyDateFormat = datetime.fromtimestamp(energyDate)
+            energyDate_hours = energyDateFormat + timedelta(hours=2)
+            energyDate_hoursFormat = energyDate_hours.strftime('%Y-%m-%d %H:%M')
 
-            if(consumptionDate_hoursFormat > currentDate_hoursFormat):
-                englishFormat = consumptionDate_hours.strftime('%I:%M %p')
+            if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
+                englishFormat = energyDate_hours.strftime('%I:%M %p')
 
                 data.append({
                     'labels': englishFormat,
+                    'dutch': energyDate_hoursFormat,
                     'values': row[1]
                 })
-
         return data
 
     def fetchEnergyData(self, type):
