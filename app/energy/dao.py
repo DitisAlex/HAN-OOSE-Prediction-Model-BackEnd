@@ -29,15 +29,13 @@ class EnergyDAO:
           consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
           consumptionDate_hoursFormat = consumptionDate_hours.strftime('%Y-%m-%d %H:%M')
           
-          # if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
-          englishFormat = consumptionDate_hours.strftime('%I:%M %p')
+          if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
+            englishFormat = consumptionDate_hours.strftime('%I:%M %p')
 
-          data.append({
-            'labels': englishFormat,
-            'dutch': consumptionDate_hoursFormat,
-            'values': row[1]
-          })
-    print(data)
+            data.append({
+              'labels': englishFormat,
+              'values': row[1]
+            })
     return data
 
   def fetchData(self, type):
