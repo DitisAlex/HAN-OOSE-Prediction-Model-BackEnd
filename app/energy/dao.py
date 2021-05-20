@@ -23,7 +23,7 @@ class EnergyDAO:
     hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=-4)
     hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
 
-    for row in rows[]:
+    for row in rows:
           consumptionDate = row[0];
           consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
           consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
