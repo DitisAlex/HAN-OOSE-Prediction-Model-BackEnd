@@ -22,28 +22,23 @@ class EnergyDAO:
     hardcodedDateFormat = datetime.strptime(hardcodedDate, "%Y-%m-%d %H:%M")
     hardCodedDate_hours = hardcodedDateFormat + timedelta(hours=-4)
     hardCodedDate_hoursFormat = hardCodedDate_hours.strftime('%Y-%m-%d %H:%M')
-    earliestHour = hardCodedDate_hours.strftime('%H')
-    lastHour = hardcodedDateFormat.strftime('%H')
 
-    for row in rows:
+    for row in rows[:25]:
           consumptionDate = row[0];
           consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
           consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
           consumptionDate_hoursFormat = consumptionDate_hours.strftime('%Y-%m-%d %H:%M')
           
-          if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
-                englishFormat = consumptionDate_hours.strftime('%I:%M %p')
+          # if(consumptionDate_hoursFormat > hardCodedDate_hoursFormat):
+          englishFormat = consumptionDate_hours.strftime('%I:%M %p')
 
-                data.append({
-                  'labels': englishFormat,
-                  'values': row[1]
-                })
-
+          data.append({
+            'labels': englishFormat,
+            'dutch': consumptionDate_hoursFormat,
+            'values': row[1]
+          })
+    print(data)
     return data
-#     let test_data = {
-#     labels: ["10AM", "11AM", "12AM", "1PM", "2PM", "3PM", "4PM", "5PM", "6PM"],
-#     values: [8, 10, 15, 13, 17, 18, 22, 19]
-# }
 
   def fetchData(self, type):
     table = 'Grid' if type == 'consumption' else 'PV'
@@ -73,6 +68,3 @@ class EnergyDAO:
         cursor.execute(insert_query, var)
 
     return ''
-
-
-
