@@ -6,6 +6,38 @@ class EnergyDAO:
     def __init__(self):
         pass
 
+    def fetchConsumptionData(self):
+        table = 'energy_consumption'
+        fetch_query = 'SELECT time, P1 FROM %s' % table
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(fetch_query)
+        rows = cursor.fetchall()
+
+        data = []
+
+        currentDate = date.today()
+        formattedDate = datetime.strptime(currentDate, "%Y-%m-%d %H:%M")
+        currentDate_hours = formattedDate + timedelta(hours=-4)
+        currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
+
+        for row in rows:
+            consumptionDate = row[0]
+            consumptionDateFormat = datetime.fromtimestamp(consumptionDate)
+            consumptionDate_hours = consumptionDateFormat + timedelta(hours=2)
+            consumptionDate_hoursFormat = consumptionDate_hours.strftime(
+                '%Y-%m-%d %H:%M')
+
+            if(consumptionDate_hoursFormat > currentDate_hoursFormat):
+                englishFormat = consumptionDate_hours.strftime('%I:%M %p')
+
+                data.append({
+                    'labels': englishFormat,
+                    'values': row[1]
+                })
+        return data
+
     def fetchProductionData(self):
         table = 'energy_production'
         fetch_query = 'SELECT Time, P1 FROM %s' % table
