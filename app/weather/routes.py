@@ -11,26 +11,3 @@ def insertWeatherData():
     c.insertWeatherData()
 
     return "Weather data inserted"
-
-@bp.route('', methods=['GET'])
-def getWeather():
-    c = WeatherController()
-    results = c.getWeatherData()
-
-    weatherData = []
-
-    for result in results:
-        weatherPoint = []
-
-        weatherPoint.append(result.getDate())
-        weatherPoint.append(result.getTemperature())
-        weatherPoint.append(result.getCloud())
-        weatherPoint.append(result.getWind())
-        weatherPoint.append(result.getPressure())
-
-        weatherData.append(weatherPoint)
-    
-    if (len(weatherData) == 0):
-        return "No historical weatherdata found in database", 204
-
-    return jsonify(weatherData)
