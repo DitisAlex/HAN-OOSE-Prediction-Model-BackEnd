@@ -1,8 +1,13 @@
-from flask import request, abort, jsonify
+from flask import json, request, abort, jsonify
 from app.energy import bp
 from app.energy.controller import EnergyController
 
 energyController = EnergyController()
+
+@bp.route('/consumption', methods=['GET'])
+def getConsumption():
+    dat = energyController.getConsumptionData()
+    return jsonify(dat)
 
 # Fetch Consumption data from Raspberry Pi and insert in database.
 @bp.route('/consumption/fetch', methods=['POST'])

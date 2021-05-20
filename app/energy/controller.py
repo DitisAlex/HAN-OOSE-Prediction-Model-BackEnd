@@ -5,6 +5,10 @@ class EnergyController:
         self.energyDAO = EnergyDAO()
         pass
 
+    def getConsumptionData(self):
+        data = self.energyDAO.fetchConsumptionData()
+        return data
+
     def fetchConsumptionData(self):
         data = self.energyDAO.fetchData('consumption')
         self.energyDAO.insertData('consumption', data)
