@@ -1,4 +1,6 @@
 from app.weather.dao import WeatherDAO
+from app.weather.domain import WeatherPoint
+from datetime import datetime, timedelta, timezone
 from pyowm.owm import OWM
 
 class WeatherController:
@@ -15,7 +17,14 @@ class WeatherController:
         current = one_call.current
         current.temperature('celsius')['temp']
 
-        self.weatherDAO.insertWeatherData(current)
+        weatherPoint = WeatherPoint(
+                datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
+                current.temperature('celsius')['temp'],
+                current.clouds,
+                current.wind()['speed'],
+                current.pressure['press'])
+
+        self.weatherDAO.insertWeatherData(weatherPoint)
 
     def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()
