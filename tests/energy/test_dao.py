@@ -18,7 +18,7 @@ def test_fetch_data(app, type):
     # # Act
     energyDAO = EnergyDAO()
     with app.app_context():
-        data = energyDAO.fetchData(type)
+        data = energyDAO.fetchEnergyData(type)
 
     # Assert
     assert len(data) > 0
@@ -41,7 +41,7 @@ def test_insert_data(app, type):
     # Act
     energyDAO = EnergyDAO()
     with app.app_context():
-        energyDAO.insertData(type, dummy_data)
+        energyDAO.insertEnergyData(type, dummy_data)
         db = get_db()
         count = db.execute(sql_query).fetchone()[0] # Get inserted data
 

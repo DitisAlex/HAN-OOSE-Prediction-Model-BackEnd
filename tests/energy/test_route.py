@@ -4,11 +4,11 @@ def test_fetchConsumptionData(client, monkeypatch):
     class Recorder(object):
         called = False
 
-    def fake_fetchConsumptionData(self):
+    def fake_fetchEnergyData(self, type):
         Recorder.called = True
 
     monkeypatch.setattr(
-        'app.energy.controller.EnergyController.fetchConsumptionData', fake_fetchConsumptionData)
+        'app.energy.controller.EnergyController.fetchEnergyData', fake_fetchEnergyData)
 
     # Act
     response = client.post('/energy/consumption/fetch')
@@ -19,17 +19,17 @@ def test_fetchConsumptionData(client, monkeypatch):
     assert Recorder.called
 
 
-def test_fetchProductionData(client, monkeypatch):
+def test_fetchEnergyData(client, monkeypatch):
     # Arrange
     # Mock controller function.
     class Recorder(object):
         called = False
 
-    def fake_fetchProductionData(self):
+    def fake_fetchEnergyData(self, type):
         Recorder.called = True
 
     monkeypatch.setattr(
-        'app.energy.controller.EnergyController.fetchProductionData', fake_fetchProductionData)
+        'app.energy.controller.EnergyController.fetchEnergyData', fake_fetchEnergyData)
 
     # Act
     response = client.post('/energy/production/fetch')
