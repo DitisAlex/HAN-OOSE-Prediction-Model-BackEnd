@@ -1,17 +1,29 @@
-from app.weather.dao import WeatherDAO
-from pyowm.owm import OWM
+from app.prediction.dao import PredictionDAO
+from app.prediction.domain import PredictionPoint
+from datetime import datetime, timedelta
 
 class PredictionController:
     def __init__(self):
-        self.weatherDAO = WeatherDAO()
+        self.predictionDAO = PredictionDAO()
         pass
 
     def getProductionPrediction(self, hours):
         predictionData = []
 
-        dummyData = [10, 4, 18, 12]
+        dummyPredictions = [10, 4, 18, 12] # standin until real predictions are generated
+
+        currentTime = datetime.now()
+
+        self.predictionDAO.deleteNewerPredictions(currentTime) # if there are predictions with a time that this prediction will also predict, delete them
 
         for i in range(hours):
-            predictionData.append(dummyData[i])
+
+            predictionTime = currentTime + timedelta(hours=i)
+            
+            predictionPoint = PredictionPoint(currentTime, predictionTime, dummyPredictions[i])
+
+            self.predictionDAO.insertPrediction(predictionPoint)
+
+            predictionData.append(dummyPredictions[i])
 
         return predictionData
