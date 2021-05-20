@@ -6,7 +6,7 @@ energyController = EnergyController()
 
 
 @bp.route('/consumption', methods=['GET'])
-def getConsumption():
+def getConsumptionData():
     data = energyController.getEnergyData('consumption')
     return jsonify(data)
 
@@ -19,7 +19,7 @@ def fetchConsumptionData():
 
 
 @bp.route('/production', methods=['GET'])
-def getProduction():
+def getProductionData():
     data = energyController.getEnergyData('production')
     return jsonify(data)
 
