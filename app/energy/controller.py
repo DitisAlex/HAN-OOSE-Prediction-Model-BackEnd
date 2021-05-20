@@ -5,14 +5,10 @@ class EnergyController:
         self.energyDAO = EnergyDAO()
         pass
 
-    def getProductionData(self):
-        data = self.energyDAO.fetchProductionData()
+    def getEnergyData(self, type):
+        data = self.energyDAO.getEnergyData(type)
         return data
 
-    def fetchConsumptionData(self):
-        data = self.energyDAO.fetchData('consumption')
-        self.energyDAO.insertData('consumption', data)
-
-    def fetchProductionData(self):
-        data = self.energyDAO.fetchData('production')
-        self.energyDAO.insertData('production', data)
+    def fetchEnergyData(self, type):
+        data = self.energyDAO.fetchEnergyData(type)
+        self.energyDAO.insertEnergyData(type, data)
