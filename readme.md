@@ -124,7 +124,7 @@ This project uses a feature based folder structure. This means that all componen
 
 #### **Prediction**
 
-- `/prediction?hours=?` [GET]: (dummy data for now) generates predictions, with an amount equal to the `hours` query parameter.
+- `/prediction?hours=?` [GET]: (dummy data for now) generates predictions, with an amount equal to the `hours` query parameter. Has to to between 1 and 4.
 
 ### **Authentication**
 
