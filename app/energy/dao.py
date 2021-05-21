@@ -16,7 +16,7 @@ class EnergyDAO:
 
         currentDate = datetime.today()
         currentDateFormat = currentDate.strftime('%Y-%m-%d %H:%M')
-        currentDate_hours = currentDate + timedelta(hours=-4)
+        currentDate_hours = currentDate + timedelta(hours=-4, days=-1)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
@@ -31,7 +31,6 @@ class EnergyDAO:
 
                 data.append({
                     'labels': englishFormat,
-                    'dutch': energyDate_hoursFormat,
                     'values': row[1]
                 })
         return data
