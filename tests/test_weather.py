@@ -33,6 +33,7 @@ def test_getWeatherData(client, app):
 
   # Act
   response = client.get('/weather')
+  # with app.app_context():
   weatherArray = response.get_json()
   
   # Assert
