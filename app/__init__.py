@@ -5,6 +5,8 @@ from flask import Flask
 # Import routes
 from .auth import bp as auth_bp
 from .energy import bp as energy_bp
+from .weather import bp as weather_bp
+from .prediction import bp as prediction_bp
 
 
 def create_app(test_config=None):
@@ -13,7 +15,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'database.db'),
-        OLD_DATABASE=os.path.join(
+        RPI_DATABASE=os.path.join(
             app.instance_path, 'modbusData.db')
     )
 
@@ -36,10 +38,14 @@ def create_app(test_config=None):
 
     # Register routes
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(energy.bp, url_prefix='/energy')
+    app.register_blueprint(energy_bp, url_prefix='/energy')
+    app.register_blueprint(weather_bp, url_prefix='/weather')
+    app.register_blueprint(prediction_bp, url_prefix='/prediction')
 
+    
+    # Test route
     @app.route('/')
     def test():
-        return 'Hello world'
+        return 'Hello, World!'
 
     return app

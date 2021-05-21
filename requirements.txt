@@ -1,4 +1,7 @@
 Flask
+pandas
+datetime
+numpy
+pyowm
 pytest
 coverage
-pandas
