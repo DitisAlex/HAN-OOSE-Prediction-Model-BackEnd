@@ -1,13 +1,14 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
 
+
 class EnergyDAO:
     def __init__(self):
         pass
 
     def getEnergyData(self, type):
         table = 'energy_consumption' if type == 'consumption' else 'energy_production'
-        fetch_query = 'SELECT time, P1 FROM %s'%table
+        fetch_query = 'SELECT time, P1 FROM %s' % table
 
         db = get_db()
         cursor = db.cursor()
@@ -24,14 +25,15 @@ class EnergyDAO:
             energyDate = row[0]
             energyDateFormat = datetime.fromtimestamp(energyDate)
             energyDate_hours = energyDateFormat + timedelta(hours=2)
-            energyDate_hoursFormat = energyDate_hours.strftime('%Y-%m-%d %H:%M')
+            energyDate_hoursFormat = energyDate_hours.strftime(
+                '%Y-%m-%d %H:%M')
 
             if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
-                englishFormat = energyDate_hours.strftime('%I:%M %p')
+                twelveHourTime = energyDate_hours.strftime('%I:%M %p')
 
                 data.append({
-                    'labels': englishFormat,
-                    'dutch': energyDate_hoursFormat,
+                    'labels': twelveHourTime,
+                    'datetime': energyDate_hoursFormat,
                     'values': row[1]
                 })
         return data
@@ -42,7 +44,6 @@ class EnergyDAO:
 
         db = get_rpi_db()
         cursor = db.cursor()
-        # TODO: only fetch new data instead of everything
         cursor.execute(fetch_query)
         rows = cursor.fetchall()
 
