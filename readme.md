@@ -120,8 +120,11 @@ This project uses a feature based folder structure. This means that all componen
 
 ### **Weather**
 
-- `/weather` [GET]: gets the latest 24 hours of weather data 
 - `/weather/fetch` [GET]: inserts new weather data into the database 
+
+#### **Prediction**
+
+- `/prediction?hours=?` [GET]: (dummy data for now) generates predictions, with an amount equal to the `hours` query parameter. Has to to between 1 and 4.
 
 ### **Authentication**
 
