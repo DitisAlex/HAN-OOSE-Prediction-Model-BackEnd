@@ -36,27 +36,3 @@ def test_fetchProductionData(client, app):
   # Assert
   assert response.status_code == 200
   assert count > 1
-
-# def test_getConsumptionData(client, app):
-#   #Arrange
-
-#   # Act
-#   response = client.get('/consumption')
-#   weatherArray = response.get_json()
-  
-#   # Assert
-#   assert response.status_code == 200
-#   assert len(weatherArray) > 0
-#   assert len(weatherArray[0]) == 5
-
-# def test_getProductionData(client, app):
-#   #Arrange
-
-#   # Act
-#   response = client.get('/production')
-#   weatherArray = response.get_json()
-  
-#   # Assert
-#   assert response.status_code == 200
-#   assert len(weatherArray) > 0
-#   assert len(weatherArray[0]) == 5
