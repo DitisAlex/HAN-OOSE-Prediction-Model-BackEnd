@@ -44,7 +44,6 @@ class EnergyDAO:
 
         db = get_rpi_db()
         cursor = db.cursor()
-        # TODO: only fetch new data instead of everything
         cursor.execute(fetch_query)
         rows = cursor.fetchall()
 
