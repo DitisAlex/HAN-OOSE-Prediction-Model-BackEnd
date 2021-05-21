@@ -29,10 +29,10 @@ class EnergyDAO:
                 '%Y-%m-%d %H:%M')
 
             if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
-                englishFormat = energyDate_hours.strftime('%I:%M %p')
+                twelveHourTime = energyDate_hours.strftime('%I:%M %p')
 
                 data.append({
-                    'labels': englishFormat,
+                    'labels': twelveHourTime,
                     'datetime': energyDate_hoursFormat,
                     'values': row[1]
                 })
