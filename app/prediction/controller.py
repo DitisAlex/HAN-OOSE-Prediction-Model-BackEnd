@@ -15,6 +15,7 @@ import numpy as np
 from datetime import datetime, timedelta
 import numpy as np
 
+
 class PredictionController:
     def __init__(self):
         self.predictionDAO = PredictionDAO()
@@ -26,7 +27,14 @@ class PredictionController:
 
         self.loadModel()
 
-        return self.makePrediction(hours)
+        result = self.makePrediction(hours)
+
+        
+        print("====================================================")
+        print(result.tolist()) 
+        print("====================================================")
+
+        return result.tolist()
 
         dummyPredictions = [10, 4, 18, 12] # standin until real predictions are generated
 
@@ -182,8 +190,16 @@ class PredictionController:
 
 
 
-    def cyclic_data(self, PV_data): # I have absolutely no clue what this does or what it gives but we do need it. -v
+    def cyclic_data(self, PV_data):
         
+
+        PV_data['index'] = PV_data.index        # I rewrote the following code because, as it was, it was trying to execute these functions on the indexes (see Kaggle for context). -v
+        PV_data['time'] = PV_data['time'].apply(lambda x:datetime.utcfromtimestamp(x)) # !IMPORTANT! I'm not sure if this gives the right timezone. If timezone issues: check here! -v
+        PV_data['year']  = PV_data['time'].apply(lambda x:x.year)
+        PV_data['month'] = PV_data['time'].apply(lambda x:x.month)
+        PV_data['day']   = PV_data['time'].apply(lambda x:x.day)
+        PV_data['hour']  = PV_data['time'].apply(lambda x:x.hour)
+
         tz = 'GMT'
         # For this example, we will be using Golden, Colorado
         #lat=51.98787601885725, lon=5.950209138832937
@@ -246,7 +262,7 @@ class PredictionController:
         
         return cyclic_data
 
-    def get_current_cyclic_data(cyclic_, PV_data):
+    def get_current_cyclic_data(self, cyclic_, PV_data):
    
         C_data = pd.merge(PV_data,cyclic_, on=['year','month','day','hour'])
         C_data.drop(C_data.columns.difference(['dayofyear_sin',
@@ -256,7 +272,7 @@ class PredictionController:
                                 "hour_sin","hour_cos","ghi"]]
         return C_data
 
-    def get_future_cyclic_data(cyclic_data):
+    def get_future_cyclic_data(self, cyclic_data):
         
         hours =24
         doy_temp = pd.DataFrame(columns = ['temp'])
