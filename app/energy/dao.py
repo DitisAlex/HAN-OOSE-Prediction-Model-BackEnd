@@ -1,5 +1,6 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
+import pandas as pd
 
 class EnergyDAO:
     def __init__(self):
@@ -65,3 +66,14 @@ class EnergyDAO:
             cursor.execute(insert_query, var)
 
         return ''
+
+    def getDataForPrediction(self):
+
+        db = get_db()
+
+        query = '''SELECT * FROM energy_production ORDER BY time DESC LIMIT 24'''
+
+        data = pd.read_sql_query(query, db)
+
+        return data
+

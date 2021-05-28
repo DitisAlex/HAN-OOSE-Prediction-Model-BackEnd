@@ -21,4 +21,12 @@ def getPrediction():
     predictionController = PredictionController()
     results = predictionController.getProductionPrediction(hours)
 
+    # data = []
+
+    # for result in results:
+    #     datapoint = []
+    #     datapoint.append(result.getTemperature())
+    #     datapoint.append(result.getCloud())
+    #     data.append(datapoint)
+
     return jsonify(results)

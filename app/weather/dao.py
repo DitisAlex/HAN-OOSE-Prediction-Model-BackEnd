@@ -27,7 +27,7 @@ class WeatherDAO:
     
       db = get_db()
       cur = db.cursor()
-      query = "SELECT * FROM Weather LIMIT 24" # get last 24 hours
+      query = "SELECT * FROM Weather LIMIT 24" # get last 24 hours. we should add a check like WHERE date > datetime.now-(1 day)
       cur.execute(query) 
 
       rows = cur.fetchall()

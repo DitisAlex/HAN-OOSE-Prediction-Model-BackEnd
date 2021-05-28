@@ -63,6 +63,13 @@ INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2,
 INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617592126, 234.0, 233.7, 234.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
 INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617592251, 233.9, 233.6, 234.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
 INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617592536, 234.0, 233.7, 234.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617592887, 234.8, 234.5, 234.7, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617593182, 234.6, 234.2, 234.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617593366, 234.2, 234.2, 234.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617593508, 234.2, 233.8, 234.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617593726, 234.0, 233.7, 234.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617593951, 233.9, 233.6, 234.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
+INSERT INTO energy_production (Time, V1, V2, V3, I1, I2, I3, P1, P2, P3, Q1, Q2, Q3, S1, S2, S3, PF1, PF2, PF3, F) VALUES (1617594136, 234.0, 233.7, 234.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 50.0);
 
 INSERT INTO prediction_data (predicted_on, predicted_date, prediction) VALUES ('2021-04-23 9:00:00', '2021-04-21 8:45:14', 2.9);
 INSERT INTO prediction_data (predicted_on, predicted_date, prediction) VALUES ('2021-04-23 9:00:00', '2021-04-21 9:45:14', 23.2);
