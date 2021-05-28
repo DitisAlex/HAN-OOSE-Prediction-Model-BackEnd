@@ -20,9 +20,6 @@ def create_app(test_config=None):
             app.instance_path, 'modbusData.db')
     )
 
-    # Initialize task scheduler
-    scheduler.init_app(app)
-
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
@@ -41,15 +38,17 @@ def create_app(test_config=None):
     db.init_app(app)
 
     # Initialize task scheduler
-    with app.app_context():
-        if is_debug_mode() and not is_werkzeug_reloader_process():
-            pass
-        else:
-            from .tasks import tasks
+    if (not app.config['TESTING']):
+        scheduler.init_app(app)
 
-            scheduler.start()
+        with app.app_context():
+            if is_debug_mode() and not is_werkzeug_reloader_process() and not app.config['TESTING']:
+                pass
+            else:
+                from .tasks import tasks
+                scheduler.start()
 
-        from .tasks import events
+            from .tasks import events
 
     # Register routes
     app.register_blueprint(auth_bp, url_prefix='/auth')
