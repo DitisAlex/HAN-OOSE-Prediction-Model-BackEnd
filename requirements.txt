@@ -5,3 +5,4 @@ numpy
 pyowm
 pytest
 coverage
+Flask-APScheduler
