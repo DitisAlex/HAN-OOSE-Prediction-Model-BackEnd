@@ -11,3 +11,4 @@ joblib
 sklearn
 h5py
 tables
+Flask-APScheduler

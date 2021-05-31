@@ -1,7 +1,7 @@
 import pytest
 from app.energy.dao import EnergyDAO
 from app.core.db import get_db, init_db
-
+import json
 
 @pytest.mark.parametrize(
     'type',
@@ -47,3 +47,29 @@ def test_insert_data(app, type):
 
     # Assert
     assert count > 0
+
+def test_getConsumptionData(client, app):
+    # Arrange
+    energyDAO = EnergyDAO()
+
+    # # Act
+    with app.app_context():
+        data = energyDAO.getEnergyData('consumption')
+    
+    response = client.get('/energy/consumption')
+
+    # Assert
+    assert json.loads(response.get_data()) == data
+
+def test_getProductionData(client, app):
+    # Arrange
+    energyDAO = EnergyDAO()
+
+    # # Act
+    with app.app_context():
+        data = energyDAO.getEnergyData('production')
+    
+    response = client.get('/energy/production')
+
+    # Assert
+    assert json.loads(response.get_data()) == data

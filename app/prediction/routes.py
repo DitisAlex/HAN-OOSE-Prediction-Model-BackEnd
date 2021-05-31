@@ -2,8 +2,6 @@ from flask import jsonify, request
 from app.prediction import bp
 from app.prediction.controller import PredictionController
 
-from flask import jsonify
-
 @bp.route('', methods=['GET'])
 def getPrediction():
 
@@ -13,10 +11,10 @@ def getPrediction():
         else:
             return "Missing query parameter 'hours'", 400
     except ValueError:
-        return "Query parameter 'hours' needs an integer from 1 to 4", 400
+        return "Query parameter 'hours' needs an integer, but the supplied value was not an integer", 400
 
     if (hours > 4 or hours < 1):
-        return "Query parameter 'hours' needs an integer from 1 to 4", 400
+        return "Query parameter 'hours' needs a value from 1 to 4", 400
 
     predictionController = PredictionController()
     results = predictionController.getProductionPrediction(hours)
@@ -30,3 +28,4 @@ def getPrediction():
     #     data.append(datapoint)
 
     return jsonify(results)
+    
