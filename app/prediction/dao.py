@@ -15,7 +15,7 @@ class PredictionDAO:
                 predictionPoint.getPredictedOn(),
                 predictionPoint.getPredictedDate(),
                 predictionPoint.getPrediction())
-
+                
     cur.execute(query, values)
 
   def deleteNewerPredictions(self, datetime):

@@ -19,6 +19,7 @@ class PredictionController:
     def __init__(self):
         self.predictionDAO = PredictionDAO()
         self.energyDAO = EnergyDAO()
+        self.weatherController = WeatherController()
         pass
 
     def getProductionPrediction(self, hours):
@@ -28,19 +29,19 @@ class PredictionController:
 
         result = self.makePrediction(hours).tolist()
 
-        currentTime = datetime.now()
+        currentTime = datetime.now() + timedelta(hours=2) # 2 hour timezone correction
 
-        self.predictionDAO.deleteNewerPredictions(currentTime) # if there are predictions with a time that this prediction will also predict, delete them. Prevents double data.
+        self.predictionDAO.deleteNewerPredictions(currentTime) # if there are predictions with a time that this prediction will also cover, delete them. prevents double data.
 
         for i in range(hours):
 
-            predictionTime = currentTime + timedelta(hours=i)
+            predictionTime = currentTime + timedelta(hours=i+1) # prediction starts at 1 hour from now
             
-            predictionPoint = PredictionPoint(currentTime, predictionTime, result[i])
+            predictionPoint = PredictionPoint(currentTime, predictionTime, result[i][0])
 
-            self.predictionDAO.insertPrediction(predictionPoint)
+            # self.predictionDAO.insertPrediction(predictionPoint)
 
-            predictionData.append(result[i])
+            predictionData.append(predictionPoint)
 
         return predictionData
 
@@ -74,8 +75,7 @@ class PredictionController:
 
     def makePrediction(self, hours):
 
-        weatherController = WeatherController()
-        weatherData = weatherController.getWeatherData()
+        weatherData = self.weatherController.getWeatherData()
 
         Temperature = []
         Cloud = []
@@ -209,8 +209,7 @@ class PredictionController:
         PV_data['hour']  = PV_data['time'].apply(lambda x:x.hour)
 
         tz = 'GMT'
-        # For this example, we will be using Golden, Colorado
-        #lat=51.98787601885725, lon=5.950209138832937
+
         lat, lon = 51.98787601885725, 5.950209138832937
         # Create location object to store lat, lon, timezone
         site = location.Location(lat, lon, tz=tz)

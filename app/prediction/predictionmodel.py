@@ -4,7 +4,7 @@ from torch.autograd import Variable
 
 class LSTM(nn.Module):
 
-    def __init__(self, num_classes, input_size, hidden_size, num_layers, seq_length, bidirectional): # Added seq_length it was generating an 'seq_length is not defined'. -v
+    def __init__(self, num_classes, input_size, hidden_size, num_layers, seq_length, bidirectional): # Added seq_length it was generating a 'seq_length is not defined'. -v
         super(LSTM, self).__init__()
         
         self.num_classes = num_classes

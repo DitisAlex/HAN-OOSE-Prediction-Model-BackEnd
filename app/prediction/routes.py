@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from datetime import datetime, timedelta
 from app.prediction import bp
 from app.prediction.controller import PredictionController
 
@@ -19,13 +20,15 @@ def getPrediction():
     predictionController = PredictionController()
     results = predictionController.getProductionPrediction(hours)
 
-    # data = []
+    predictionData = []
 
-    # for result in results:
-    #     datapoint = []
-    #     datapoint.append(result.getTemperature())
-    #     datapoint.append(result.getCloud())
-    #     data.append(datapoint)
+    for predictionPoint in results:
+        predictionData.append({
+                    'labels': predictionPoint.getPredictedDate().strftime('%I:%M %p'),
+                    'datetime': predictionPoint.getPredictedDate().strftime('%Y-%m-%d %H:%M'),
+                    'value': predictionPoint.getPrediction()
+                })
+        
 
-    return jsonify(results)
+    return jsonify(predictionData)
     
