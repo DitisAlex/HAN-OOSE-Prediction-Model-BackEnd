@@ -17,12 +17,12 @@ class EnergyDAO:
 
         currentDate = datetime.today()
         currentDateFormat = currentDate.strftime('%Y-%m-%d %H:%M')
-        currentDate_hours = currentDate + timedelta(hours=-4)
+        currentDate_hours = currentDate + timedelta(hours=-120)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
         if len(rows)==0:
-            abort(404, description="No data found")
+            abort(404, description = "No data found")
         else:
             for row in rows:
                 energyDate = row[0]
@@ -39,7 +39,10 @@ class EnergyDAO:
                         'datetime': energyDate_hoursFormat,
                         'values': row[1]
                     })
-            return data
+            if len(data)> 0:
+                return data
+            else:
+                abort(404, description = "No datas found")
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
