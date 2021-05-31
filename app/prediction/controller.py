@@ -9,7 +9,6 @@ import torch
 from joblib import load
 from torch.autograd import Variable
 from pvlib import location
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
@@ -27,16 +26,7 @@ class PredictionController:
 
         self.loadModel()
 
-        result = self.makePrediction(hours)
-
-        
-        print("====================================================")
-        print(result.tolist()) 
-        print("====================================================")
-
-        return result.tolist()
-
-        dummyPredictions = [10, 4, 18, 12] # standin until real predictions are generated
+        result = self.makePrediction(hours).tolist()
 
         currentTime = datetime.now()
 
@@ -46,11 +36,11 @@ class PredictionController:
 
             predictionTime = currentTime + timedelta(hours=i)
             
-            predictionPoint = PredictionPoint(currentTime, predictionTime, dummyPredictions[i])
+            predictionPoint = PredictionPoint(currentTime, predictionTime, result[i])
 
             self.predictionDAO.insertPrediction(predictionPoint)
 
-            predictionData.append(dummyPredictions[i])
+            predictionData.append(result[i])
 
         return predictionData
 
@@ -99,7 +89,6 @@ class PredictionController:
             Press.append(weatherDataPoint.getPressure())
 
         PV_data = self.energyDAO.getDataForPrediction()
-        Power = PV_data['P1'].values
 
 
         # Convert cloud percentages to Octant because the train values data is on Octant (0-8).
@@ -111,22 +100,36 @@ class PredictionController:
 
         ######## Pytorch code kicks here ########
 
+        Power = PV_data['P1'].values
+        Power = np.reshape(Power, (-1, 1))[0:4]
+
         Power = np.reshape(Power, (-1, 1))[0:24]
         Temperature = np.reshape(Temperature, (-1, 1))[0:24]
         Cloud_Oct = np.reshape(Cloud_Oct, (-1, 1))[0:24]
         Wind = np.reshape(Wind, (-1, 1))[0:24]
         Press = np.reshape(Press, (-1, 1))[0:24]
 
+        mean_T = np.mean(Temperature)
+        mean_C = np.mean(Cloud_Oct)
+        mean_W = np.mean(Wind)
+        mean_Press = np.mean(Press)
 
+
+        T = np.full((4, 1), mean_T)
+        T[-1] = Temperature[0]
+        C = np.full((4, 1), mean_C)
+        C[-1] = Cloud_Oct[0]
+        W = np.full((4, 1), mean_W)
+        W[-1] = Wind[0]
+        Pres = np.full((4, 1), mean_Press)
+        Pres[-1] = Press[0]
 
         cyclic_ = self.cyclic_data(PV_data)
         C_data = self.get_current_cyclic_data(cyclic_, PV_data)
         future_data = self.get_future_cyclic_data(cyclic_)
 
-        Power = np.nan_to_num(Power)
-
         # Stack Power, Temperaure and Cloud data together.
-        input_data = np.hstack((Power, Temperature, Cloud_Oct, Wind, Press, C_data.values))  # Since we have real data now I swapped out mean values for real data. This might be wrong. -v
+        input_data = np.hstack((Power,T ,C,W,Pres,C_data.values))
         input_data = self.sc_X.transform(input_data)
         input_data = input_data.reshape((1,input_data.shape[0], input_data.shape[1]))
 
@@ -172,9 +175,14 @@ class PredictionController:
             # Add all prediction value together. 
             Predic_P = Predic_P.detach().numpy()  
             #print(Predic_P)
-            predict = np.append(predict,Predic_P) 
+            predict = np.append(predict,Predic_P)
 
-        return predict
+        predict_tf = np.reshape(predict, (len(predict), 1))
+        predict_tf = self.sc_Y.inverse_transform(predict_tf)         
+        # Solar power always > 0
+        predict_tf[predict_tf < 0] = 0
+
+        return predict_tf
 
 
 
@@ -270,7 +278,7 @@ class PredictionController:
                                             'hour_sin','hour_cos','ghi']), 1, inplace=True)
         C_data = C_data[["dayofyear_sin", "dayofyear_cos", 
                                 "hour_sin","hour_cos","ghi"]]
-        return C_data
+        return C_data.head(4) #Added a head(4) to this because I don't understand why this is giving back more than 4 datapoints. (head(x) returns gives the top x points). -v
 
     def get_future_cyclic_data(self, cyclic_data):
         
