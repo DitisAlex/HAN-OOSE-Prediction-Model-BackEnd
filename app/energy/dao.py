@@ -17,7 +17,7 @@ class EnergyDAO:
 
         currentDate = datetime.today()
         currentDateFormat = currentDate.strftime('%Y-%m-%d %H:%M')
-        currentDate_hours = currentDate + timedelta(hours=-120)
+        currentDate_hours = currentDate + timedelta(hours=-4)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
