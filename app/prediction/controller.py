@@ -39,7 +39,7 @@ class PredictionController:
             
             predictionPoint = PredictionPoint(currentTime, predictionTime, result[i][0])
 
-            # self.predictionDAO.insertPrediction(predictionPoint)
+            self.predictionDAO.insertPrediction(predictionPoint)
 
             predictionData.append(predictionPoint)
 
