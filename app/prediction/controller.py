@@ -27,7 +27,10 @@ class PredictionController:
 
         self.loadModel()
 
-        result = self.makePrediction(hours).tolist()
+        result = self.makePrediction(hours)
+
+        if (len(result) == 0):
+            return result
 
         currentTime = datetime.now() + timedelta(hours=2) # 2 hour timezone correction
 
@@ -76,6 +79,10 @@ class PredictionController:
     def makePrediction(self, hours):
 
         weatherData = self.weatherController.getWeatherData()
+        PV_data = self.energyDAO.getDataForPrediction()
+
+        if (len(weatherData) < 4 or len(PV_data) < 4):
+            return []
 
         Temperature = []
         Cloud = []
@@ -88,7 +95,6 @@ class PredictionController:
             Wind.append(weatherDataPoint.getWind())
             Press.append(weatherDataPoint.getPressure())
 
-        PV_data = self.energyDAO.getDataForPrediction()
 
 
         # Convert cloud percentages to Octant because the train values data is on Octant (0-8).
@@ -182,7 +188,7 @@ class PredictionController:
         # Solar power always > 0
         predict_tf[predict_tf < 0] = 0
 
-        return predict_tf
+        return predict_tf.tolist()
 
 
 

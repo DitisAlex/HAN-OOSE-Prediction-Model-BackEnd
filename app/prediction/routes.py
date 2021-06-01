@@ -20,6 +20,9 @@ def getPrediction():
     predictionController = PredictionController()
     results = predictionController.getProductionPrediction(hours)
 
+    if (len(results) == 0):
+        return "Not enough historical data to make a prediction", 404
+
     predictionData = []
 
     for predictionPoint in results:
