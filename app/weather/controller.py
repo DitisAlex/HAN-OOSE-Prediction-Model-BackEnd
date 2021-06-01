@@ -2,7 +2,6 @@ from app.weather.dao import WeatherDAO
 from app.weather.domain import WeatherPoint
 from datetime import datetime, timedelta, timezone
 from pyowm.owm import OWM
-from flask import abort
 
 class WeatherController:
     def __init__(self):
