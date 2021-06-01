@@ -2,6 +2,7 @@ from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
 from flask import abort
 
+
 class EnergyDAO:
     def __init__(self):
         pass
@@ -21,8 +22,8 @@ class EnergyDAO:
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
-        if len(rows)==0:
-            abort(404, description = "No data found")
+        if len(rows) == 0:
+            abort(404, description="No data found")
         else:
             for row in rows:
                 energyDate = row[0]
@@ -39,10 +40,10 @@ class EnergyDAO:
                         'datetime': energyDate_hoursFormat,
                         'values': row[1]
                     })
-            if len(data)> 0:
+            if len(data) > 0:
                 return data
             else:
-                abort(404, description = "No datas found")
+                abort(404, description="No datas found")
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
@@ -66,9 +67,22 @@ class EnergyDAO:
         db = get_db()
         cursor = db.cursor()
 
+        cursor.execute("SELECT no FROM %s" % table)
+        rows = cursor.fetchall()
+
+        existing_ids = []
+        for row in rows:
+            existing_ids.append(list(row))
+
+        print(existing_ids)
+
         for row in data:
-            var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
-            cursor.execute(insert_query, var)
+            new_id = 0 if len(existing_ids) else existing_ids[-1]
+            while new_id in existing_ids:
+                new_id += 1
+
+                # var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                #        row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
+                # cursor.execute(insert_query, var)
 
         return ''
