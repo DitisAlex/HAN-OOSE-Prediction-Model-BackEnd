@@ -9,9 +9,11 @@ import torch
 from joblib import load
 from torch.autograd import Variable
 from pvlib import location
+from pyowm.owm import OWM
+from pyowm.utils import timestamps, formatting
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import numpy as np
 
 
@@ -51,7 +53,7 @@ class PredictionController:
 
 
     def loadModel(self): # Mostly Pytorch code
-        PATH = "models/KNMI_GPU_sin_cos_with_clear_sky.pt"
+        PATH = "instance/models/Clear_sky_update.pt"
 
         # Input parameters for the model structure. These are the ones that will need customising eventually
 
@@ -71,71 +73,55 @@ class PredictionController:
         self.model.load_state_dict(torch.load(PATH, map_location=device))
 
         # Load
-        self.sc_X=load('models/scaler_X_sin_cos_with_clear_sky.bin')
-        self.sc_Y=load('models/scaler_Y_sin_cos _with_clear_sky.bin')
-        self.sc_W=load('models/scaler_W_sin_cos _with_clear_sky.bin')
+        self.sc_X=load('instance/models/scaler_X_Clear_sky_update.bin')
+        self.sc_Y=load('instance/models/scaler_Y_Clear_sky_update.bin')
+        self.sc_W=load('instance/models/scaler_W_Clear_sky_update.bin')
 
 
     def makePrediction(self, hours):
+        
+        # weather keys
+        key ='1a4df9d4817c3d16e92b272d59531753'
+        pass_hours = 12
+        future_data = 24
 
-        weatherData = self.weatherController.getWeatherData()
+        # cyclic data keys
+        tz = 'UTC'
+        lat, lon = 51.98787601885725, 5.950209138832937
+        first_doy= '1/1/2021'
+        first_dony = '01/01/2022'
+
+        # Get historical PV data
         PV_data = self.energyDAO.getDataForPrediction()
 
-        if (len(weatherData) < 4 or len(PV_data) < 4):
+        # Get pass weather data
+        passweather = self.get_history_weather(key, pass_hours)
+    
+        # Get future weather data
+        futureweather = self.get_future_weather(key, future_data)
+
+        if (len(PV_data) < 4):
             return []
 
-        Temperature = []
-        Cloud = []
-        Wind = []
-        Press = []
-
-        for weatherDataPoint in weatherData:
-            Temperature.append(weatherDataPoint.getTemperature())
-            Cloud.append(weatherDataPoint.getCloud())
-            Wind.append(weatherDataPoint.getWind())
-            Press.append(weatherDataPoint.getPressure())
-
-
-
-        # Convert cloud percentages to Octant because the train values data is on Octant (0-8).
-
-        # Cloud_Oct = np.rint(Cloud*8/100) <-- Bizzare math being executed on array. Does this ever work? Not like that in any case. Wrote a loop for it instead. -v
-        Cloud_Oct = []
-        for cloudPoint in Cloud:
-            Cloud_Oct.append(cloudPoint*8/100)
 
         ######## Pytorch code kicks here ########
 
         Power = PV_data['P1'].values
-        Power = np.reshape(Power, (-1, 1))[0:4]
+        Power = np.reshape(Power, (-1, 1))[0:12]
+        Power = np.nan_to_num(Power)
 
-        Power = np.reshape(Power, (-1, 1))[0:24]
-        Temperature = np.reshape(Temperature, (-1, 1))[0:24]
-        Cloud_Oct = np.reshape(Cloud_Oct, (-1, 1))[0:24]
-        Wind = np.reshape(Wind, (-1, 1))[0:24]
-        Press = np.reshape(Press, (-1, 1))[0:24]
-
-        mean_T = np.mean(Temperature)
-        mean_C = np.mean(Cloud_Oct)
-        mean_W = np.mean(Wind)
-        mean_Press = np.mean(Press)
-
-
-        T = np.full((4, 1), mean_T)
-        T[-1] = Temperature[0]
-        C = np.full((4, 1), mean_C)
-        C[-1] = Cloud_Oct[0]
-        W = np.full((4, 1), mean_W)
-        W[-1] = Wind[0]
-        Pres = np.full((4, 1), mean_Press)
-        Pres[-1] = Press[0]
-
-        cyclic_ = self.cyclic_data(PV_data)
-        C_data = self.get_current_cyclic_data(cyclic_, PV_data)
-        future_data = self.get_future_cyclic_data(cyclic_)
+        # get cyclic data
+        cyclic_ = self.cyclic_data(tz,lat,lon,first_doy,first_dony)
+        
+        # get current cyclic data
+        current_c_data = self.get_current_cyclic_data(cyclic_,PV_data)
+        
+        # get future cyclic data
+        future_cyclic_data = self.get_future_cyclic_data(cyclic_,future_data)
 
         # Stack Power, Temperaure and Cloud data together.
-        input_data = np.hstack((Power,T ,C,W,Pres,C_data.values))
+        input_data = np.hstack((Power,passweather, current_c_data))
+        input_data[:,9] = input_data[:,9]*(1-(input_data[:,2]/9 * input_data[:,4]))
         input_data = self.sc_X.transform(input_data)
         input_data = input_data.reshape((1,input_data.shape[0], input_data.shape[1]))
 
@@ -143,14 +129,10 @@ class PredictionController:
         input_data = Variable(torch.Tensor(np.array(input_data)))
 
         # Weather data
-        #Weather = np.hstack((Temperature_sc ,Cloud_sc, Wind_sc))
-        Weather = np.hstack((Temperature ,Cloud_Oct, Wind,Press, future_data.values))
+        Weather = np.hstack((futureweather, future_cyclic_data))
+        Weather[:,8] = Weather[:,8]*(1-(Weather[:,1]/9 * Weather[:,3]))
         Weather = self.sc_W.transform(Weather)
         Weather = Variable(torch.Tensor(np.array(Weather)))
-
-        # The last data point is the current weather condition.
-        input_data[0,-1,1:11]= Weather[0]
-        Predic_W = Weather[0]
 
         #Create an empty array
         predict =np.array([])
@@ -203,30 +185,33 @@ class PredictionController:
         return np.cos(2*np.pi*values/len(set(values)))
 
 
-
-    def cyclic_data(self, PV_data):
+    def cyclic_data(self, tz,lat,lon,first_doy,first_dony):
         
-
-        PV_data['index'] = PV_data.index        # I rewrote the following code because, as it was, it was trying to execute these functions on the indexes (see Kaggle for context). -v
-        PV_data['time'] = PV_data['time'].apply(lambda x:datetime.utcfromtimestamp(x)) # !IMPORTANT! I'm not sure if this gives the right timezone. If timezone issues: check here! -v
-        PV_data['year']  = PV_data['time'].apply(lambda x:x.year)
-        PV_data['month'] = PV_data['time'].apply(lambda x:x.month)
-        PV_data['day']   = PV_data['time'].apply(lambda x:x.day)
-        PV_data['hour']  = PV_data['time'].apply(lambda x:x.hour)
-
-        tz = 'GMT'
-
-        lat, lon = 51.98787601885725, 5.950209138832937
+        """ Arg:
+            - tz         :     time zone
+            - lat        :     latitude
+            - lon        :     longitude
+            - first_doy  :     first day of the year
+            - first_dony :     first day of next year
+    
+        Returns:
+            - clearsky   : dataframe with clear sky of the year and clyclic_data
+            
+            https://towardsdatascience.com/cyclical-features-encoding-its-about-time-ce23581845ca
+            https://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/
+            https://www.datasciencecentral.com/profiles/blogs/how-to-make-time-data-cyclical-for-prediction
+            
+        """
         # Create location object to store lat, lon, timezone
         site = location.Location(lat, lon, tz=tz)
 
-        times2021 = pd.date_range(start='1/1/2021', end='01/01/2022', freq='1H',tz=site.tz) #tz='UTC'
+        times = pd.date_range(start=first_doy, end=first_dony, freq='1H',tz=site.tz) #tz='UTC'
         #print (idx.to_pydatetime())
-        idx =  pd.DataFrame(times2021.to_pydatetime(),columns =['time'])
-        idx['year']  = idx['time'].apply(lambda x:x.year)
-        idx['month'] = idx['time'].apply(lambda x:x.month)
-        idx['day']   = idx['time'].apply(lambda x:x.day)
-        idx['hour']  = idx['time'].apply(lambda x:x.hour)
+        idx =  pd.DataFrame(times.to_pydatetime(),columns =['Time'])
+        idx['year']  = idx['Time'].apply(lambda x:x.year)
+        idx['month'] = idx['Time'].apply(lambda x:x.month)
+        idx['day']   = idx['Time'].apply(lambda x:x.day)
+        idx['hour']  = idx['Time'].apply(lambda x:x.hour)
 
         temp=np.zeros(len(idx['day']))
         day=1
@@ -256,44 +241,77 @@ class PredictionController:
 
         idx['dayofyear_sin'] = self.sin_transform(idx['doy'])
         idx['dayofyear_cos'] = self.cos_transform(idx['doy'])
-        idx['hour_sin'] = self.sin_transform(idx['hour'])
-        idx['hour_cos'] = self.cos_transform(idx['hour'])
+        idx['hour_sin']      = self.sin_transform(idx['hour'])
+        idx['hour_cos']      = self.cos_transform(idx['hour'])
 
-        #times = pd.date_range(start='1/1/2021', end='01/01/2022', freq='1H',tz=site.tz)
-        #times
-        clearsky2021 = site.get_clearsky(times2021) # clearsky2021 = site.get_clearsky(times2021) ---- was the original line. -v
-        clearsky2021.drop(['dni','dhi'],axis=1, inplace=True) #updating the same dataframe by dropping two columnsclearsky2021.reset_index(inplace=True)
-        clearsky2021.reset_index(inplace=True)
-        clearsky2021['index']=clearsky2021['index'].apply(lambda x:x.to_pydatetime())
-        clearsky2021['year'] = clearsky2021['index'].apply(lambda x:x.year)
-        clearsky2021['month'] = clearsky2021['index'].apply(lambda x:x.month)
-        clearsky2021['day'] = clearsky2021['index'].apply(lambda x:x.day)
-        clearsky2021['hour'] = clearsky2021['index'].apply(lambda x:x.hour)
+        
+        #times    
+        clearsky = site.get_clearsky(times)
+        
+        # shift 1 hour up for correction   
+        clearsky['ghi'] = clearsky['ghi'].shift(-1)
+        clearsky['ghi'] = clearsky['ghi'].fillna(0)
+        
+        # drop dni and dhi
+        clearsky.drop(['dni','dhi'],axis=1, inplace=True) #updating the same dataframe by dropping two columnsclearsky2021.reset_index(inplace=True)
+        clearsky.reset_index(inplace=True)
+        clearsky['index'] = clearsky['index'].apply(lambda x:x.to_pydatetime())
+        clearsky['year']  = clearsky['index'].apply(lambda x:x.year)
+        clearsky['month'] = clearsky['index'].apply(lambda x:x.month)
+        clearsky['day']   = clearsky['index'].apply(lambda x:x.day)
+        clearsky['hour']  = clearsky['index'].apply(lambda x:x.hour)
 
-        cyclic_data = pd.merge(clearsky2021,idx, on=['year','month','day','hour'])
+        cyclic_data = pd.merge(clearsky,idx, on=['year','month','day','hour'])
         cyclic_data['ghi']=cyclic_data['ghi'].values*11.52
         
         return cyclic_data
 
-    def get_current_cyclic_data(self, cyclic_, PV_data):
-   
-        C_data = pd.merge(PV_data,cyclic_, on=['year','month','day','hour'])
-        C_data.drop(C_data.columns.difference(['dayofyear_sin',
-                                            'dayofyear_cos',
-                                            'hour_sin','hour_cos','ghi']), 1, inplace=True)
-        C_data = C_data[["dayofyear_sin", "dayofyear_cos", 
-                                "hour_sin","hour_cos","ghi"]]
-        return C_data.head(4) #Added a head(4) to this because I don't understand why this is giving back more than 4 datapoints. (head(x) returns gives the top x points). -v
-
-    def get_future_cyclic_data(self, cyclic_data):
+    def get_current_cyclic_data(self, cyclic_data,solar_data):
+    
+        """ Arg:
+            - cyclic_data         :     cyclic data
+            - solar_data          :     PV input data
         
-        hours =24
+        Returns:
+            - pass_cyclic   : get n hours (the number of hours = number of pass PV hours) 
+                            to current time of cyclic data    
+        """
+
+        solar_data['index'] = solar_data.index        # I rewrote the following code because, as it was, it was trying to execute these functions on the indexes (see Kaggle for context). -v
+        solar_data['time'] = solar_data['time'].apply(lambda x:datetime.utcfromtimestamp(x)) # !IMPORTANT! I'm not sure if this gives the right timezone. If timezone issues: check here! -v
+        solar_data['year']  = solar_data['time'].apply(lambda x:x.year)
+        solar_data['month'] = solar_data['time'].apply(lambda x:x.month)
+        solar_data['day']   = solar_data['time'].apply(lambda x:x.day)
+        solar_data['hour']  = solar_data['time'].apply(lambda x:x.hour)
+    
+        current_cyclic = pd.merge(solar_data,cyclic_data, on=['year','month','day','hour'])
+        current_cyclic.drop(current_cyclic.columns.difference(['dayofyear_sin',
+                                                            'dayofyear_cos','hour_sin',
+                                                            'hour_cos','ghi']), 1, inplace=True)
+        
+        current_cyclic = current_cyclic[["dayofyear_sin", "dayofyear_cos", 
+                                        "hour_sin","hour_cos","ghi"]]
+        
+        return current_cyclic.head(12) # Needed to cut these so I could np stack them later (arrays need to be same size to stack). -v
+
+    def get_future_cyclic_data(self, cyclic_data,hours):
+    
+        """ Arg:
+        
+            - cyclic_data         :     cyclic_data
+            - hours               :     number of future data
+        
+        Returns:
+            - future_cyclic_data  : get n hours  of future cyclic data    
+        """
+        
+        #hours =24
         doy_temp = pd.DataFrame(columns = ['temp'])
         future_hours = []
 
         for i in range(hours):
 
-            temp = datetime.now().replace(microsecond=0, second=0, minute=0) + timedelta(hours=i+1)
+            temp = datetime.utcnow().replace(microsecond=0, second=0, minute=0) + timedelta(hours=i+1)
             future_hours = np.append(future_hours,temp)
             doy_temp.loc[future_hours[i]]= 0
 
@@ -304,11 +322,118 @@ class PredictionController:
             doy_temp['day']   = doy_temp['index'].apply(lambda x:x.day)
             doy_temp['hour']  = doy_temp['index'].apply(lambda x:x.hour)
 
-        future_data = pd.merge(doy_temp, cyclic_data, on=['year','month','day','hour'])
-        future_data.drop(future_data.columns.difference(['dayofyear_sin',
-                                                        'dayofyear_cos',
-                                                        'hour_sin','hour_cos','ghi']), 1, inplace=True)
-        future_data = future_data[["dayofyear_sin", "dayofyear_cos", 
-                                "hour_sin","hour_cos","ghi"]]
+        future_cyclic_data = pd.merge(doy_temp, cyclic_data, on=['year','month','day','hour'])
         
-        return future_data
+        future_cyclic_data.drop(future_cyclic_data.columns.difference(['dayofyear_sin','dayofyear_cos',
+                                                                    'hour_sin','hour_cos','ghi']), 1, inplace=True)
+        
+        future_cyclic_data = future_cyclic_data[["dayofyear_sin", "dayofyear_cos", 
+                                                "hour_sin","hour_cos","ghi"]]
+        #future_data.head(1)
+    
+        return future_cyclic_data
+
+    def get_history_weather(self,key,pass_hours):
+    
+        #owm = OWM('1a4df9d4817c3d16e92b272d59531753')
+        owm = OWM(key)
+        mgr = owm.weather_manager()
+        
+        # what is the epoch for yesterday at this time?
+        
+        yesterday_epoch = formatting.to_UNIXtime(timestamps.yesterday())
+        one_call_yesterday = mgr.one_call_history(lat=51.98787601885725, lon=5.950209138832937, dt=yesterday_epoch)
+        
+        # today weather up to current time
+        
+        today = int((datetime.utcnow() - timedelta(hours=1)).replace(tzinfo=timezone.utc).timestamp())
+        one_call_today = mgr.one_call_history(lat=51.98787601885725, lon=5.950209138832937, dt=today)
+        
+        weather = pd.DataFrame(columns = ['temperature','cloud','wind','rain'])
+        
+        for i in range(len(one_call_yesterday.forecast_hourly)):
+
+            temp    = one_call_yesterday.forecast_hourly[i].ref_time
+            temp    = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
+            cloud   = one_call_yesterday.forecast_hourly[i].clouds
+            cloud   = np.rint(cloud*8/100)
+            temperature = one_call_yesterday.forecast_hourly[i].temperature('celsius')['temp']
+            wind   = one_call_yesterday.forecast_hourly[i].wind()['speed']
+
+            if one_call_yesterday.forecast_hourly[i].status == 'rain':
+                    rain = 1
+            else: rain = 0
+
+            weather = weather.append({'temperature': temperature,'cloud': cloud,
+                                    'wind': wind,'rain': rain},ignore_index=True)
+
+        for i in range (len(one_call_today.forecast_hourly)):
+
+            temp    = one_call_today.forecast_hourly[i].ref_time
+            temp    = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
+            cloud   = one_call_today.forecast_hourly[i].clouds
+            cloud   = np.rint(cloud*8/100)
+            temperature = one_call_today.forecast_hourly[i].temperature('celsius')['temp']
+            wind   = one_call_today.forecast_hourly[i].wind()['speed']
+
+            if one_call_today.forecast_hourly[i].status == 'rain':
+                    rain = 1
+            else: rain = 0
+
+
+            weather = weather.append({'temperature': temperature,'cloud': cloud,
+                                    'wind': wind,'rain': rain},ignore_index=True)
+            
+        #weather['time'] = pd.to_datetime(weather['time'])
+        #weather= weather.set_index('time')
+        #weather['index'] = weather.index
+        #weather['index'] = weather['index'].apply(lambda x:x.to_pydatetime())
+        #weather['year']  = weather['index'].apply(lambda x:x.year)
+        #weather['month'] = weather['index'].apply(lambda x:x.month)
+        #weather['day']   = weather['index'].apply(lambda x:x.day)
+        #weather['hour']  = weather['index'].apply(lambda x:x.hour)
+        
+        weather = weather.tail(pass_hours)
+        weather.reset_index(drop=True, inplace=True)
+        return weather
+
+    def get_future_weather(self,key,future_hours):
+        
+        owm = OWM(key)
+        mgr = owm.weather_manager()
+        one_call_future = mgr.one_call(lat=51.98787601885725, lon=5.950209138832937)
+        
+
+        future_weather = pd.DataFrame(columns = ['temperature','cloud','wind','rain'])
+
+        for i in range(len(one_call_future.forecast_hourly)):
+
+            temp        = one_call_future.forecast_hourly[i].ref_time
+            temp        = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
+            #print(temp)
+            cloud       = one_call_future.forecast_hourly[i].clouds
+            cloud       = np.rint(cloud*8/100)
+            temperature = one_call_future.forecast_hourly[i].temperature('celsius')['temp']
+            wind        = one_call_future.forecast_hourly[i].wind()['speed']
+
+            if one_call_future.forecast_hourly[i].status == 'rain':
+                    rain = 1
+            else: rain = 0
+
+            future_weather = future_weather.append({'temperature': temperature,'cloud': cloud,
+                                                    'wind': wind,'rain': rain},ignore_index=True)
+            
+        #weather['time'] = pd.to_datetime(weather['time'])
+        #weather= weather.set_index('time')
+        #weather['index'] = weather.index
+        #weather['index'] = weather['index'].apply(lambda x:x.to_pydatetime())
+        #weather['year']  = weather['index'].apply(lambda x:x.year)
+        #weather['month'] = weather['index'].apply(lambda x:x.month)
+        #weather['day']   = weather['index'].apply(lambda x:x.day)
+        #weather['hour']  = weather['index'].apply(lambda x:x.hour)
+        
+        #future_weather = future_weather[0:future_hours]
+        #future_weather.reset_index(drop=True, inplace=True)
+        #future_weather = future_weather.head(future_hours)
+        future_weather = future_weather[1:future_hours+1]
+        return future_weather
