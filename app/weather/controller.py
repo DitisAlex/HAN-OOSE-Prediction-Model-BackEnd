@@ -1,7 +1,8 @@
 from app.weather.dao import WeatherDAO
 from app.weather.domain import WeatherPoint
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pyowm.owm import OWM
+from flask import abort
 
 class WeatherController:
     def __init__(self):
@@ -14,16 +15,19 @@ class WeatherController:
         mgr = owm.weather_manager()
         one_call = mgr.one_call(lat=51, lon=5)
         current = one_call.current
-        current.temperature('celsius')['temp']
         
-        weatherPoint = WeatherPoint(
-            datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
-            current.temperature('celsius')['temp'],
-            current.clouds,
-            current.wind()['speed'],
-            current.pressure['press']
-        )
-        self.weatherDAO.insertWeatherData(weatherPoint)
+        try:
+            current.temperature('celsius')['temp']
+            weatherPoint = WeatherPoint(
+                datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
+                current.temperature('celsius')['temp'],
+                current.clouds,
+                current.wind()['speed'],
+                current.pressure['press']
+            )
+            self.weatherDAO.insertWeatherData(weatherPoint)
+        except:
+            abort(404)
 
     def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()
