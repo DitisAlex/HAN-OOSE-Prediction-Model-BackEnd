@@ -72,17 +72,12 @@ class EnergyDAO:
 
         existing_ids = []
         for row in rows:
-            existing_ids.append(list(row))
-
-        print(existing_ids)
+            existing_ids.append(list(row)[0])
 
         for row in data:
-            new_id = 0 if len(existing_ids) else existing_ids[-1]
-            while new_id in existing_ids:
-                new_id += 1
-
-                # var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                #        row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
-                # cursor.execute(insert_query, var)
+            if(row[0] not in existing_ids):
+                var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                       row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
+                cursor.execute(insert_query, var)
 
         return ''
