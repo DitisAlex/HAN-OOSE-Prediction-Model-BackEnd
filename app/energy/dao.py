@@ -1,7 +1,7 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
+from flask import abort
 import pandas as pd
-
 
 class EnergyDAO:
     def __init__(self):
@@ -22,22 +22,28 @@ class EnergyDAO:
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
-        for row in rows:
-            energyDate = row[0]
-            energyDateFormat = datetime.fromtimestamp(energyDate)
-            energyDate_hours = energyDateFormat + timedelta(hours=2)
-            energyDate_hoursFormat = energyDate_hours.strftime(
-                '%Y-%m-%d %H:%M')
+        if len(rows)==0:
+            abort(404, description = "No data found")
+        else:
+            for row in rows:
+                energyDate = row[0]
+                energyDateFormat = datetime.fromtimestamp(energyDate)
+                energyDate_hours = energyDateFormat + timedelta(hours=2)
+                energyDate_hoursFormat = energyDate_hours.strftime(
+                    '%Y-%m-%d %H:%M')
 
-            if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
-                twelveHourTime = energyDate_hours.strftime('%I:%M %p')
+                if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
+                    twelveHourTime = energyDate_hours.strftime('%I:%M %p')
 
-                data.append({
-                    'labels': twelveHourTime,
-                    'datetime': energyDate_hoursFormat,
-                    'values': row[1]
-                })
-        return data
+                    data.append({
+                        'labels': twelveHourTime,
+                        'datetime': energyDate_hoursFormat,
+                        'values': row[1]
+                    })
+            if len(data)> 0:
+                return data
+            else:
+                abort(404, description = "No datas found")
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
