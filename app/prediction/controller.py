@@ -79,6 +79,17 @@ class PredictionController:
 
 
     def makePrediction(self, hours):
+
+        # Get historical PV data
+        PV_data = self.energyDAO.getDataForPrediction()
+
+
+        if (len(PV_data) < 4):
+            return []
+
+
+        ######## Pytorch code starts here ########
+
         
         # weather keys
         key ='1a4df9d4817c3d16e92b272d59531753'
@@ -90,21 +101,12 @@ class PredictionController:
         lat, lon = 51.98787601885725, 5.950209138832937
         first_doy= '1/1/2021'
         first_dony = '01/01/2022'
-
-        # Get historical PV data
-        PV_data = self.energyDAO.getDataForPrediction()
-
+        
         # Get pass weather data
         passweather = self.get_history_weather(key, pass_hours)
     
         # Get future weather data
         futureweather = self.get_future_weather(key, future_data)
-
-        if (len(PV_data) < 4):
-            return []
-
-
-        ######## Pytorch code kicks here ########
 
         Power = PV_data['P1'].values
         Power = np.reshape(Power, (-1, 1))[0:12]
