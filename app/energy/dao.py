@@ -12,9 +12,10 @@ class EnergyDAO:
         currentDate_hours = currentDate + timedelta(hours=-4)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
+
         data = []
         if len(energyData)==0:
-            abort(404, description = "No data found")
+            abort(404, description="No data found")
         else:
             for i in range(len(energyData)):
                 energyDate = energyData[i].getTime()
