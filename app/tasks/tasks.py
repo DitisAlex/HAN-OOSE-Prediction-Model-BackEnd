@@ -36,6 +36,7 @@ def fetch_pv_data():
         ec.fetchEnergyData("production")
 
 @scheduler.task(
+    "interval",
     id="fetch_weather_data",
     hours=1,
     max_instances=1,
