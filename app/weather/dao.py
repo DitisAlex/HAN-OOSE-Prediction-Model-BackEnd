@@ -1,7 +1,6 @@
 from pyowm.weatherapi25 import weather
-from app.core.db import get_db, get_rpi_db
+from app.core.db import get_db
 from app.weather.domain import WeatherPoint
-from flask import jsonify
 
 class WeatherDAO:
   def __init__(self):
