@@ -12,10 +12,10 @@ class PredictionDAO:
 
     query = '''INSERT INTO prediction_data (predicted_on, predicted_date, prediction) VALUES (?,?,?)'''
     values = (
-                predictionPoint.getPredictedOn(),
-                predictionPoint.getPredictedDate(),
+                predictionPoint.getPredictedOn().strftime('%Y-%m-%d %H:%M:%S'),
+                predictionPoint.getPredictedDate().strftime('%Y-%m-%d %H:%M:%S'),
                 predictionPoint.getPrediction())
-
+                
     cur.execute(query, values)
 
   def deleteNewerPredictions(self, datetime):
