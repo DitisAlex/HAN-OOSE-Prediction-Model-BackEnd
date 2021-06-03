@@ -20,6 +20,7 @@ def fetch_ev_data():
         ec.fetchEnergyData("consumption")
         print("data fetched!")
 
+
 @scheduler.task(
     "interval",
     id="fetch_pv_data",
@@ -34,6 +35,8 @@ def fetch_pv_data():
     with scheduler.app.app_context():
         ec = EnergyController()
         ec.fetchEnergyData("production")
+        print('data fetched')
+
 
 @scheduler.task(
     "interval",
