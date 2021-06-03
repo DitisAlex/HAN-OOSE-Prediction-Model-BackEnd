@@ -43,7 +43,7 @@ class EnergyDAO:
             if len(data)> 0:
                 return data
             else:
-                abort(404, description = "No datas found")
+                abort(404, description = "No data found")
 
     def getDataForPrediction(self):
 
