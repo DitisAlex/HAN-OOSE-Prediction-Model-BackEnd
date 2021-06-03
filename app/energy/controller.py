@@ -32,3 +32,7 @@ class EnergyController:
         energyData = self.energyDAO.getEnergyData(data)
         print(energyData)
         return energyData
+
+    def fetchEnergyData(self, type):
+        data = self.energyDAO.fetchEnergyData(type)
+        self.energyDAO.insertEnergyData(type, data)
