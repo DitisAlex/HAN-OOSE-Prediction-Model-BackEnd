@@ -1,5 +1,6 @@
 from app.core.db import get_db, get_rpi_db
 from datetime import date, datetime, timedelta, timezone
+from flask import abort
 
 
 class EnergyDAO:
@@ -21,22 +22,28 @@ class EnergyDAO:
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
-        for row in rows:
-            energyDate = row[0]
-            energyDateFormat = datetime.fromtimestamp(energyDate)
-            energyDate_hours = energyDateFormat + timedelta(hours=2)
-            energyDate_hoursFormat = energyDate_hours.strftime(
-                '%Y-%m-%d %H:%M')
+        if len(rows) == 0:
+            abort(404, description="No data found")
+        else:
+            for row in rows:
+                energyDate = row[0]
+                energyDateFormat = datetime.fromtimestamp(energyDate)
+                energyDate_hours = energyDateFormat + timedelta(hours=2)
+                energyDate_hoursFormat = energyDate_hours.strftime(
+                    '%Y-%m-%d %H:%M')
 
-            if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
-                twelveHourTime = energyDate_hours.strftime('%I:%M %p')
+                if(energyDate_hoursFormat > currentDate_hoursFormat and energyDate_hoursFormat < currentDateFormat):
+                    twelveHourTime = energyDate_hours.strftime('%I:%M %p')
 
-                data.append({
-                    'labels': twelveHourTime,
-                    'datetime': energyDate_hoursFormat,
-                    'values': row[1]
-                })
-        return data
+                    data.append({
+                        'labels': twelveHourTime,
+                        'datetime': energyDate_hoursFormat,
+                        'values': row[1]
+                    })
+            if len(data) > 0:
+                return data
+            else:
+                abort(404, description="No datas found")
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
@@ -60,9 +67,17 @@ class EnergyDAO:
         db = get_db()
         cursor = db.cursor()
 
+        cursor.execute("SELECT no FROM %s" % table)
+        rows = cursor.fetchall()
+
+        existing_ids = []
+        for row in rows:
+            existing_ids.append(list(row)[0])
+
         for row in data:
-            var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
-            cursor.execute(insert_query, var)
+            if(row[0] not in existing_ids):
+                var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                       row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
+                cursor.execute(insert_query, var)
 
         return ''
