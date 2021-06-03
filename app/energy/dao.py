@@ -15,15 +15,15 @@ class EnergyDAO:
         currentDate_hours = currentDate + timedelta(hours=-4)
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
-
         data = []
-        if len(energyData)==0:
+        if len(energyData) == 0:
             abort(404, description="No data found")
         else:
             for i in range(len(energyData)):
                 energyDate = energyData[i].getTime()
                 energyDateTimestamp = datetime.fromtimestamp(energyDate)
-                twentyfourHourFormat = energyDateTimestamp.strftime('%Y-%m-%d %H:%M')
+                twentyfourHourFormat = energyDateTimestamp.strftime(
+                    '%Y-%m-%d %H:%M')
 
                 if(twentyfourHourFormat > currentDate_hoursFormat and twentyfourHourFormat < currentDateFormat):
                     twelveHourTime = energyDateTimestamp.strftime('%I:%M %p')
@@ -36,7 +36,7 @@ class EnergyDAO:
             if len(data) > 0:
                 return data
             else:
-                abort(404, description = "No data found")
+                abort(404, description="No data found")
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
@@ -60,10 +60,18 @@ class EnergyDAO:
         db = get_db()
         cursor = db.cursor()
 
+        cursor.execute("SELECT no FROM %s" % table)
+        rows = cursor.fetchall()
+
+        existing_ids = []
+        for row in rows:
+            existing_ids.append(list(row)[0])
+
         for row in data:
-            var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
-                   row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
-            cursor.execute(insert_query, var)
+            if(row[0] not in existing_ids):
+                var = (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
+                       row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17], row[18], row[19], row[20])
+                cursor.execute(insert_query, var)
 
         return ''
 
@@ -76,4 +84,3 @@ class EnergyDAO:
         data = pd.read_sql_query(query, db)
 
         return data
-
