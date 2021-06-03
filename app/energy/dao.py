@@ -2,6 +2,7 @@ from app import energy
 from datetime import datetime, timedelta
 from flask import abort
 
+
 class EnergyDAO:
     def __init__(self):
         pass
