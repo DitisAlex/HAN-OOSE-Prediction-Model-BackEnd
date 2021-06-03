@@ -13,7 +13,6 @@ class EnergyDAO:
         currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
 
         data = []
-        
         if len(energyData)==0:
             abort(404, description = "No data found")
         else:
@@ -30,7 +29,6 @@ class EnergyDAO:
                         'datetime': twentyfourHourFormat,
                         'values': energyData[i].getP1()
                     })
-            
             if len(data) > 0:
                 return data
             else:
