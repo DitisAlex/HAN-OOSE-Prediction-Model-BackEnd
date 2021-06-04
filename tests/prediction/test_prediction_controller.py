@@ -51,8 +51,6 @@ def test_getProductionPrediction(app, monkeypatch):
     with app.app_context():
         pc = PredictionController()
         result = pc.getProductionPrediction(hours)
-        print('\nTEST\n')
-        print(result[0])
 
     # Assert
     assert len(result) == hours
@@ -114,3 +112,16 @@ def test_getProductionPredictionNoPVData(app, monkeypatch):
     assert Recorder.called2
     assert not Recorder.called3
     assert not Recorder.called4
+
+def test_makePrediction(app, monkeypatch):
+
+    hours = 3
+
+    with app.app_context():
+        pc = PredictionController()
+        pc.loadModel()
+        result = pc.makePrediction(hours)
+        print('\nTEST\n')
+        print(result)
+
+    assert 1 == 1
