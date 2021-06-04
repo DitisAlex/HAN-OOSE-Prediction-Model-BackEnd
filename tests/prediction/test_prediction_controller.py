@@ -66,10 +66,8 @@ def test_getProductionPrediction(app, monkeypatch):
 def test_getProductionPredictionNoPVData(app, monkeypatch):
     # Arrange
     hours = 1
-    mock_result_makePrediction = [[5000], [6000], [3000], [4000]]  # Hardcoded
-    expected_result = (datetime.now() + timedelta(hours=2)).strftime('%H:%M:%S') + \
-                      ' ' + (datetime.now() + timedelta(hours=2 + 1)
-                             ).strftime('%H:%M:%S') + ' ' + str(mock_result_makePrediction[0][0])
+    mock_result_makePrediction = []
+    expected_result = []
 
     # Mock functions
 
@@ -109,13 +107,10 @@ def test_getProductionPredictionNoPVData(app, monkeypatch):
     with app.app_context():
         pc = PredictionController()
         result = pc.getProductionPrediction(hours)
-        print('\nTEST\n')
-        print(result[0])
 
     # Assert
-    assert len(result) == 0
+    assert result == expected_result
     assert Recorder.called1
     assert Recorder.called2
-    assert Recorder.called3
-    assert Recorder.called4
-
+    assert not Recorder.called3
+    assert not Recorder.called4
