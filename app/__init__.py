@@ -9,6 +9,8 @@ from .energy import bp as energy_bp
 from .weather import bp as weather_bp
 from .prediction import bp as prediction_bp
 
+from app.energy import EnergyController
+
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -36,6 +38,9 @@ def create_app(test_config=None):
     # Initialize db
     from .core import db
     db.init_app(app)
+
+    with app.app_context():
+        initial_fetch()
 
     # Initialize task scheduler
     if (not app.config['TESTING']):
@@ -77,3 +82,8 @@ def is_debug_mode():
 def is_werkzeug_reloader_process():
     """Get werkzeug status."""
     return os.environ.get("WERKZEUG_RUN_MAIN") == "true"
+
+def initial_fetch():
+    ec = EnergyController()
+    ec.fetchEnergyData("production")
+    ec.fetchEnergyData("consumption")
