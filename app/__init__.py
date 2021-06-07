@@ -59,11 +59,6 @@ def create_app(test_config=None):
     app.register_blueprint(weather_bp, url_prefix='/weather')
     app.register_blueprint(prediction_bp, url_prefix='/prediction')
 
-    # Test route
-    @app.route('/')
-    def test():
-        return 'Hello, World!'
-
     return app
 
 # Helper functions
