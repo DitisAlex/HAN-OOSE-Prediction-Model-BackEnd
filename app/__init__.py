@@ -44,7 +44,7 @@ def create_app(test_config=None):
 
         with app.app_context():
             # init table data
-            initial_fetch()
+            # initial_fetch()
 
             if is_debug_mode() and not is_werkzeug_reloader_process() and not app.config['TESTING']:
                 pass
