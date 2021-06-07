@@ -3,9 +3,6 @@ from app.core.db import get_db
 from app.weather.domain import WeatherPoint
 
 class WeatherDAO:
-  def __init__(self):
-    pass
-
   def insertWeatherData(self, weatherPoint):
 
     # Open database

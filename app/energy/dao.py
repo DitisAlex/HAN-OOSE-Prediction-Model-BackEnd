@@ -6,14 +6,14 @@ import pandas as pd
 
 
 class EnergyDAO:
-    def __init__(self):
-        pass
-
     def getEnergyData(self, energyData):
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
         currentDate = datetime.today()
-        currentDateFormat = currentDate.strftime('%Y-%m-%d %H:%M')
+        currentDateFormat = currentDate.strftime(DATETIME_FORMAT)
         currentDate_hours = currentDate + timedelta(hours=-24)
-        currentDate_hoursFormat = currentDate_hours.strftime('%Y-%m-%d %H:%M')
+        currentDate_hoursFormat = currentDate_hours.strftime(DATETIME_FORMAT)
 
         data = []
         if len(energyData)==0:
@@ -22,7 +22,7 @@ class EnergyDAO:
             for i in range(len(energyData)):
                 energyDate = energyData[i].getTime()
                 energyDateTimestamp = datetime.fromtimestamp(energyDate)
-                twentyfourHourFormat = energyDateTimestamp.strftime('%Y-%m-%d %H:%M')
+                twentyfourHourFormat = energyDateTimestamp.strftime(DATETIME_FORMAT)
 
                 if(twentyfourHourFormat > currentDate_hoursFormat and twentyfourHourFormat < currentDateFormat):
                     twelveHourTime = energyDateTimestamp.strftime('%I:%M %p')

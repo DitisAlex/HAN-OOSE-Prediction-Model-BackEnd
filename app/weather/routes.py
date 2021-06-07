@@ -8,5 +8,5 @@ def insertWeatherData():
         c = WeatherController()
         c.insertWeatherData()
         return "Weather data inserted"
-    except:
-        return "Weather data not inserted"
+    except BaseException as e:
+        return "Weather data not inserted: " +  e

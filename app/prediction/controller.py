@@ -336,6 +336,8 @@ class PredictionController:
         return future_cyclic_data
 
     def get_history_weather(self,key,pass_hours):
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M'
     
         #owm = OWM('1a4df9d4817c3d16e92b272d59531753')
         owm = OWM(key)
@@ -356,7 +358,7 @@ class PredictionController:
         for i in range(len(one_call_yesterday.forecast_hourly)):
 
             temp    = one_call_yesterday.forecast_hourly[i].ref_time
-            temp    = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
+            temp    = datetime.fromtimestamp(temp).strftime(DATETIME_FORMAT)
             cloud   = one_call_yesterday.forecast_hourly[i].clouds
             cloud   = np.rint(cloud*8/100)
             temperature = one_call_yesterday.forecast_hourly[i].temperature('celsius')['temp']
@@ -372,7 +374,7 @@ class PredictionController:
         for i in range (len(one_call_today.forecast_hourly)):
 
             temp    = one_call_today.forecast_hourly[i].ref_time
-            temp    = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
+            temp    = datetime.fromtimestamp(temp).strftime(DATETIME_FORMAT)
             cloud   = one_call_today.forecast_hourly[i].clouds
             cloud   = np.rint(cloud*8/100)
             temperature = one_call_today.forecast_hourly[i].temperature('celsius')['temp']
