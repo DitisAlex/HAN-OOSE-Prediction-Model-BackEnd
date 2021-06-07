@@ -6,6 +6,7 @@ def test_getProductionData(client, monkeypatch):
 
     def fake_getProductionData(self, type):
         Recorder.called = True
+        return [1, 2]
 
     monkeypatch.setattr(
         'app.energy.controller.EnergyController.getEnergyData', fake_getProductionData)
@@ -26,6 +27,7 @@ def test_getConsumptionData(client, monkeypatch):
 
     def fake_getConsumptionData(self, type):
         Recorder.called = True
+        return [1, 2]
 
     monkeypatch.setattr(
         'app.energy.controller.EnergyController.getEnergyData', fake_getConsumptionData)
