@@ -10,6 +10,9 @@ class WeatherController:
         pass
 
     def insertWeatherData(self):
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
         # Setup weather, taken from Pytorch model.
         owm = OWM('1a4df9d4817c3d16e92b272d59531753')
         mgr = owm.weather_manager()
@@ -18,7 +21,7 @@ class WeatherController:
         
         current.temperature('celsius')['temp']
         weatherPoint = WeatherPoint(
-            datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
+            datetime.fromtimestamp(current.ref_time).strftime(DATETIME_FORMAT),
             current.temperature('celsius')['temp'],
             current.clouds,
             current.wind()['speed'],
