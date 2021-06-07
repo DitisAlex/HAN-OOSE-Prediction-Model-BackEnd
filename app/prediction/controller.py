@@ -148,7 +148,6 @@ class PredictionController:
             # Use the predicted value to predict the next steps (2nd,3rd....) hours
             
             if i < len(Weather):
-                #Predic_W = Weather[0:i+1]
                 Predic_W = Weather[i+1]
             else:
                 Predic_W = Variable(torch.Tensor(np.array([0, 0,0])))
@@ -160,11 +159,9 @@ class PredictionController:
             new_input_data =  new_input_data[torch.arange (new_input_data.size (0))!=0]
             
             input_data[0] = new_input_data
-            #print(input_data[0,-1,:])
             
             # Add all prediction value together. 
             Predic_P = Predic_P.detach().numpy()  
-            #print(Predic_P)
             predict = np.append(predict,Predic_P)
 
         predict_tf = np.reshape(predict, (len(predict), 1))
@@ -207,8 +204,7 @@ class PredictionController:
         # Create location object to store lat, lon, timezone
         site = location.Location(lat, lon, tz=tz)
 
-        times = pd.date_range(start=first_doy, end=first_dony, freq='1H',tz=site.tz) #tz='UTC'
-        #print (idx.to_pydatetime())
+        times = pd.date_range(start=first_doy, end=first_dony, freq='1H',tz=site.tz)
         idx =  pd.DataFrame(times.to_pydatetime(),columns =['Time'])
         idx['year']  = idx['Time'].apply(lambda x:x.year)
         idx['month'] = idx['Time'].apply(lambda x:x.month)
@@ -307,7 +303,6 @@ class PredictionController:
             - future_cyclic_data  : get n hours  of future cyclic data    
         """
         
-        #hours =24
         doy_temp = pd.DataFrame(columns = ['temp'])
         future_hours = []
 
@@ -331,7 +326,6 @@ class PredictionController:
         
         future_cyclic_data = future_cyclic_data[["dayofyear_sin", "dayofyear_cos", 
                                                 "hour_sin","hour_cos","ghi"]]
-        #future_data.head(1)
     
         return future_cyclic_data
 
@@ -339,7 +333,6 @@ class PredictionController:
 
         DATETIME_FORMAT = '%Y-%m-%d %H:%M'
     
-        #owm = OWM('1a4df9d4817c3d16e92b272d59531753')
         owm = OWM(key)
         mgr = owm.weather_manager()
         
@@ -387,15 +380,6 @@ class PredictionController:
 
             weather = weather.append({'temperature': temperature,'cloud': cloud,
                                     'wind': wind,'rain': rain},ignore_index=True)
-            
-        #weather['time'] = pd.to_datetime(weather['time'])
-        #weather= weather.set_index('time')
-        #weather['index'] = weather.index
-        #weather['index'] = weather['index'].apply(lambda x:x.to_pydatetime())
-        #weather['year']  = weather['index'].apply(lambda x:x.year)
-        #weather['month'] = weather['index'].apply(lambda x:x.month)
-        #weather['day']   = weather['index'].apply(lambda x:x.day)
-        #weather['hour']  = weather['index'].apply(lambda x:x.hour)
         
         weather = weather.tail(pass_hours)
         weather.reset_index(drop=True, inplace=True)
@@ -414,7 +398,6 @@ class PredictionController:
 
             temp        = one_call_future.forecast_hourly[i].ref_time
             temp        = datetime.fromtimestamp(temp).strftime('%Y-%m-%d %H:%M:%S')
-            #print(temp)
             cloud       = one_call_future.forecast_hourly[i].clouds
             cloud       = np.rint(cloud*8/100)
             temperature = one_call_future.forecast_hourly[i].temperature('celsius')['temp']
@@ -426,18 +409,6 @@ class PredictionController:
 
             future_weather = future_weather.append({'temperature': temperature,'cloud': cloud,
                                                     'wind': wind,'rain': rain},ignore_index=True)
-            
-        #weather['time'] = pd.to_datetime(weather['time'])
-        #weather= weather.set_index('time')
-        #weather['index'] = weather.index
-        #weather['index'] = weather['index'].apply(lambda x:x.to_pydatetime())
-        #weather['year']  = weather['index'].apply(lambda x:x.year)
-        #weather['month'] = weather['index'].apply(lambda x:x.month)
-        #weather['day']   = weather['index'].apply(lambda x:x.day)
-        #weather['hour']  = weather['index'].apply(lambda x:x.hour)
-        
-        #future_weather = future_weather[0:future_hours]
-        #future_weather.reset_index(drop=True, inplace=True)
-        #future_weather = future_weather.head(future_hours)
+
         future_weather = future_weather[1:future_hours+1]
         return future_weather
