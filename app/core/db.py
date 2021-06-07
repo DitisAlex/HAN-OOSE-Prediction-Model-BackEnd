@@ -80,6 +80,7 @@ def show_db_command(table):
     print(df)
 
 def init_app(app):
+    insert_test_data_command()
     app.teardown_appcontext(close_db)
     app.teardown_appcontext(close_rpi_db)
     app.cli.add_command(init_db_command)
