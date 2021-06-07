@@ -10,24 +10,25 @@ class WeatherController:
         pass
 
     def insertWeatherData(self):
+
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
         # Setup weather, taken from Pytorch model.
         owm = OWM('1a4df9d4817c3d16e92b272d59531753')
         mgr = owm.weather_manager()
         one_call = mgr.one_call(lat=51, lon=5)
         current = one_call.current
         
-        try:
-            current.temperature('celsius')['temp']
-            weatherPoint = WeatherPoint(
-                datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
-                current.temperature('celsius')['temp'],
-                current.clouds,
-                current.wind()['speed'],
-                current.pressure['press']
-            )
-            self.weatherDAO.insertWeatherData(weatherPoint)
-        except:
-            abort(404)
+        current.temperature('celsius')['temp']
+        weatherPoint = WeatherPoint(
+            datetime.fromtimestamp(current.ref_time).strftime(DATETIME_FORMAT),
+            current.temperature('celsius')['temp'],
+            current.clouds,
+            current.wind()['speed'],
+            current.pressure['press']
+        )
+        
+        self.weatherDAO.insertWeatherData(weatherPoint)
 
     def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()

@@ -2,6 +2,8 @@ from app.prediction.domain import PredictionPoint
 from flask import jsonify
 from datetime import datetime, timedelta, timezone
 
+GETPRODUCTIONPREDICTION_PATH = 'app.prediction.controller.PredictionController.getProductionPrediction'
+
 def test_getPredictionSuccesfully(client, monkeypatch):
     # Arrange
     # Mock controller function.
@@ -27,8 +29,7 @@ def test_getPredictionSuccesfully(client, monkeypatch):
         return predictionData
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
     response = client.get('/prediction/3')
@@ -72,8 +73,7 @@ def test_getPredictionNoPVData(client, monkeypatch):
         return []
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
     response = client.get('/prediction/2')
@@ -93,8 +93,7 @@ def test_getPredictionHoursOutOfBounds(client, monkeypatch):
         Recorder.called = True
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
     response = client.get('/prediction/5')
@@ -114,8 +113,7 @@ def test_getPredictionHoursNaN(client, monkeypatch):
         Recorder.called = True
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
     response = client.get('/prediction/viktorgreat')
