@@ -12,3 +12,6 @@ class PredictionPoint:
     
     def getPrediction(self):
         return self.__prediction
+
+    def __str__(self):
+        return self.__predictedOn.strftime("%H:%M:%S") + ' ' + self.__predictedDate.strftime("%H:%M:%S") + ' ' + str(self.__prediction)
