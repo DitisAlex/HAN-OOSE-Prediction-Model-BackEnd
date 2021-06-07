@@ -16,18 +16,16 @@ class WeatherController:
         one_call = mgr.one_call(lat=51, lon=5)
         current = one_call.current
         
-        try:
-            current.temperature('celsius')['temp']
-            weatherPoint = WeatherPoint(
-                datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
-                current.temperature('celsius')['temp'],
-                current.clouds,
-                current.wind()['speed'],
-                current.pressure['press']
-            )
-            self.weatherDAO.insertWeatherData(weatherPoint)
-        except:
-            abort(404)
+        current.temperature('celsius')['temp']
+        weatherPoint = WeatherPoint(
+            datetime.fromtimestamp(current.ref_time).strftime('%Y-%m-%d %H:%M:%S'),
+            current.temperature('celsius')['temp'],
+            current.clouds,
+            current.wind()['speed'],
+            current.pressure['press']
+        )
+        
+        self.weatherDAO.insertWeatherData(weatherPoint)
 
     def getWeatherData(self):
         weatherData = self.weatherDAO.getWeatherData()
