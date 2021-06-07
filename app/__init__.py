@@ -36,16 +36,16 @@ def create_app(test_config=None):
 
     # Initialize db
     from .core import db
-    db.init_app(app)
-
-    with app.app_context():
-        initial_fetch()
+    db.init_app(app)      
 
     # Initialize task scheduler
     if (not app.config['TESTING']):
         scheduler.init_app(app)
 
         with app.app_context():
+            # init table data
+            initial_fetch()
+
             if is_debug_mode() and not is_werkzeug_reloader_process() and not app.config['TESTING']:
                 pass
             else:

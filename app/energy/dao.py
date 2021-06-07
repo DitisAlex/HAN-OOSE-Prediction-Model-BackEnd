@@ -1,41 +1,65 @@
 from app import energy
 from app.core.db import get_db, get_rpi_db
 from datetime import datetime, timedelta
-from flask import abort
 import pandas as pd
+from app.energy.domain import EnergyPoint
 
 
 class EnergyDAO:
-    def getEnergyData(self, energyData):
+    def getEnergyData(self, type):
 
         DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
+        table = 'energy_consumption' if type == 'consumption' else 'energy_production'
+        fetch_query = 'SELECT * FROM %s' % table
+
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute(fetch_query)
+        rows = cursor.fetchall()
+
+        energyPoints = []
+        if len(rows) == 0:
+            return []
+        else:
+            for row in rows:
+                energyPoint = [x for x in row]
+                energyPoints.append(
+                    EnergyPoint(energyPoint[0], energyPoint[1], energyPoint[2], energyPoint[3], energyPoint[4], energyPoint[5], energyPoint[6],
+                                energyPoint[7], energyPoint[8], energyPoint[9], energyPoint[
+                                    10], energyPoint[11], energyPoint[12], energyPoint[13],
+                                energyPoint[14], energyPoint[15], energyPoint[16], energyPoint[17], energyPoint[18], energyPoint[19], energyPoint[20])
+                )
 
         currentDate = datetime.today()
         currentDateFormat = currentDate.strftime(DATETIME_FORMAT)
         currentDate_hours = currentDate + timedelta(hours=-24)
         currentDate_hoursFormat = currentDate_hours.strftime(DATETIME_FORMAT)
 
-        data = []
-        if len(energyData)==0:
-            abort(404, description="No data found")
+        energyData = []
+        if len(energyPoints) == 0:
+            return []
         else:
-            for i in range(len(energyData)):
-                energyDate = energyData[i].getTime()
+            for i in range(len(energyPoints)):
+                energyDate = energyPoints[i].getTime()
                 energyDateTimestamp = datetime.fromtimestamp(energyDate)
                 twentyfourHourFormat = energyDateTimestamp.strftime(DATETIME_FORMAT)
 
                 if(twentyfourHourFormat > currentDate_hoursFormat and twentyfourHourFormat < currentDateFormat):
                     twelveHourTime = energyDateTimestamp.strftime('%I:%M %p')
 
-                    data.append({
+                    energyData.append({
                         'labels': twelveHourTime,
                         'datetime': twentyfourHourFormat,
-                        'values': energyData[i].getP1()
+                        'values': energyPoints[i].getP1()
                     })
-            if len(data) > 0:
-                return data
+
+            if len(energyData) > 0:
+                return energyData
             else:
-                abort(404, description = "No data found")
+                print("TEST")
+
+                return []
 
     def fetchEnergyData(self, type):
         table = 'Grid' if type == 'consumption' else 'PV'
