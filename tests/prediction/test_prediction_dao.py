@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 def test_insertPrediction(app):
     # Arrange
     sql_query = 'SELECT COUNT(predicted_on) FROM prediction_data'
-    predictionPoint = PredictionPoint('2021-04-23 9:00:00', '2021-04-21 9:45:14', 23.2)
+    predictionPoint = PredictionPoint(datetime.fromtimestamp(1619161200), datetime.fromtimestamp(1619163914), 323.2) # 2021-04-23 9:00:00, 2021-04-21 9:45:14
     with app.app_context():
         init_db()  # Empty the database before running this tests.
     predictionDAO = PredictionDAO()

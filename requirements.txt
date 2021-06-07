@@ -5,3 +5,10 @@ numpy
 pyowm
 pytest
 coverage
+torch
+pvlib
+joblib
+sklearn
+h5py
+tables
+Flask-APScheduler

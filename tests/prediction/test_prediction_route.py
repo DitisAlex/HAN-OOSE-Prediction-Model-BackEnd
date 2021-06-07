@@ -1,3 +1,9 @@
+from app.prediction.domain import PredictionPoint
+from flask import jsonify
+from datetime import datetime, timedelta, timezone
+
+GETPRODUCTIONPREDICTION_PATH = 'app.prediction.controller.PredictionController.getProductionPrediction'
+
 def test_getPredictionSuccesfully(client, monkeypatch):
     # Arrange
     # Mock controller function.
@@ -6,21 +12,34 @@ def test_getPredictionSuccesfully(client, monkeypatch):
 
     def fake_ProductionPrediction(self, hours):
         Recorder.called = True
-        data = []
+
+        currentTime = datetime.now() + timedelta(hours=2)
+
+        predictionData = []
+
         for i in range(hours):
-            data.append(327)
-        return data
+
+            predictionTime = currentTime + timedelta(hours=i+1)
+            
+            predictionPoint = PredictionPoint(currentTime, predictionTime, 327.35+i)
+
+            predictionData.append(predictionPoint)
+
+        
+        return predictionData
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
-    response = client.get('/prediction?hours=3')
+    response = client.get('/prediction/3')
 
     # Assert
     assert response.status_code == 200
-    assert b'[327,327,327]' in response.data
+    assert b'"value": 327.35' in response.data
+    assert b'"value": 328.35' in response.data
+    assert b'"value": 329.35' in response.data
+    assert b'"value": 330.35' not in response.data
     assert Recorder.called
 
 def test_getPredictionNoHours(client, monkeypatch):
@@ -40,9 +59,29 @@ def test_getPredictionNoHours(client, monkeypatch):
     response = client.get('/prediction')
 
     # Assert
-    assert response.status_code == 400
-    assert b'Missing query parameter' in response.data
+    assert response.status_code == 404
     assert Recorder.called == False
+
+def test_getPredictionNoPVData(client, monkeypatch):
+    # Arrange
+    # Mock controller function.
+    class Recorder(object):
+        called = False
+
+    def fake_ProductionPrediction(self, hours):
+        Recorder.called = True
+        return []
+
+
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
+
+    # Act
+    response = client.get('/prediction/2')
+
+    # Assert
+    assert response.status_code == 404
+    assert b'Not enough historical data' in response.data
+    assert Recorder.called == True
 
 def test_getPredictionHoursOutOfBounds(client, monkeypatch):
     # Arrange
@@ -54,11 +93,10 @@ def test_getPredictionHoursOutOfBounds(client, monkeypatch):
         Recorder.called = True
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
-    response = client.get('/prediction?hours=5')
+    response = client.get('/prediction/5')
 
     # Assert
     assert response.status_code == 400
@@ -75,11 +113,10 @@ def test_getPredictionHoursNaN(client, monkeypatch):
         Recorder.called = True
 
 
-    monkeypatch.setattr(
-        'app.prediction.controller.PredictionController.getProductionPrediction', fake_ProductionPrediction)
+    monkeypatch.setattr(GETPRODUCTIONPREDICTION_PATH, fake_ProductionPrediction)
 
     # Act
-    response = client.get('/prediction?hours=viktorgreat')
+    response = client.get('/prediction/viktorgreat')
 
     # Assert
     assert response.status_code == 400

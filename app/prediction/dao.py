@@ -6,16 +6,19 @@ class PredictionDAO:
 
   def insertPrediction(self, predictionPoint):
 
+    
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
     # Open database
     db = get_db()
     cur = db.cursor()
 
     query = '''INSERT INTO prediction_data (predicted_on, predicted_date, prediction) VALUES (?,?,?)'''
     values = (
-                predictionPoint.getPredictedOn(),
-                predictionPoint.getPredictedDate(),
+                predictionPoint.getPredictedOn().strftime(DATETIME_FORMAT),
+                predictionPoint.getPredictedDate().strftime(DATETIME_FORMAT),
                 predictionPoint.getPrediction())
-
+                
     cur.execute(query, values)
 
   def deleteNewerPredictions(self, datetime):

@@ -1,4 +1,7 @@
 from app.energy.dao import EnergyDAO
+from app.energy.domain import EnergyPoint
+from app.core.db import get_db
+from flask import abort
 
 class EnergyController:
     def __init__(self):
@@ -6,8 +9,8 @@ class EnergyController:
         pass
 
     def getEnergyData(self, type):
-        data = self.energyDAO.getEnergyData(type)
-        return data
+        energyData = self.energyDAO.getEnergyData(type)
+        return energyData
 
     def fetchEnergyData(self, type):
         data = self.energyDAO.fetchEnergyData(type)
