@@ -1,9 +1,14 @@
+import app
 import sqlite3
 
 import click
 from flask import current_app, g
 from flask.cli import with_appcontext
 from pandas import pandas as pd
+import paramiko
+import os
+from pathlib import Path
+
 
 
 def get_db():
@@ -18,7 +23,26 @@ def get_db():
 
 
 def get_rpi_db():
-    #TODO: Pull data from Raspberry Pi! For now we mock this using modbusData.db...
+    # TODO: Pull data from Raspberry Pi! For now we mock this using modbusData.db...
+    # Connect to the RPI via ssh
+    # Copy the database to the 'instance' folder. By using app.instance_path
+
+    host = "80.113.19.27"
+    port = 22
+    password = "controlsystem"
+    username = "pi"
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(host, port, username, password)
+
+    ftp = ssh.open_sftp()
+    
+    data_d = ftp.chdir('/mnt/dav/Data')
+    cwd=ftp.getcwd()
+    path = Path.cwd()
+    
+    ftp.get("modbusData.db",os.path.join(current_app.instance_path, "modbusData.db"),callback=None)
 
     if 'rpi_db' not in g:
         g.rpi_db = sqlite3.connect(
@@ -69,6 +93,17 @@ def insert_test_data_command():
     click.echo('Inserted test data.')
 
 @click.command('show-table')
+@click.argument('table')
+@with_appcontext
+def show_db_command(table):
+    """Get tables."""
+    db = get_db()
+    query = "SELECT * FROM %s;"%table
+    df = pd.read_sql_query(query, db)
+
+    print(df)
+
+@click.command('get')
 @click.argument('table')
 @with_appcontext
 def show_db_command(table):

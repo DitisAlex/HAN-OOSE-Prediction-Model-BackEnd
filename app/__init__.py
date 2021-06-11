@@ -50,7 +50,7 @@ def create_app(test_config=None):
                 pass
             else:
                 from .tasks import tasks
-                scheduler.start()
+                # scheduler.start()
 
             from .tasks import events
 

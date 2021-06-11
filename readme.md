@@ -58,6 +58,8 @@ There are two options to run this backend: on your local machine using Python vi
 
 3. The backend is automatically started after container is build. You can access it via http://localhost:5000 or http://0.0.0.0:5000.
 
+> Docker research for this project: https://confluenceoosevt.aimsites.nl/display/UPRFIR/Onderzoek+Docker
+
 ## Project Layout
 
 This project uses a feature based folder structure. This means that all components (`routes`, `controllers`, `daos`) of each feature are in the same folder.
