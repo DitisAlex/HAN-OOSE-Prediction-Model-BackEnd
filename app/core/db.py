@@ -92,17 +92,6 @@ def insert_test_data_command():
     
     click.echo('Inserted test data.')
 
-@click.command('show-table')
-@click.argument('table')
-@with_appcontext
-def show_db_command(table):
-    """Get tables."""
-    db = get_db()
-    query = "SELECT * FROM %s;"%table
-    df = pd.read_sql_query(query, db)
-
-    print(df)
-
 @click.command('get')
 @click.argument('table')
 @with_appcontext
@@ -113,6 +102,17 @@ def show_db_command(table):
     df = pd.read_sql_query(query, db)
 
     print(df)
+
+@click.command('get-rpi')
+@with_appcontext
+def show_db_command():
+    """Get tables."""
+    db = get_rpi_db()
+    query = "SELECT * FROM PV;"
+    df = pd.read_sql_query(query, db)
+
+    print(df)
+
 
 def init_app(app):
     app.teardown_appcontext(close_db)
